@@ -23,7 +23,7 @@ function authenticateToken(req, res, next) {
     });
 }
 
-// Rota para registro de usuário
+// Rota para registo de usuário
 router.post('/registo', async (req, res) => {
     const { nome, email, password } = req.body;
     if (!passwordRegex.test(password)) {
@@ -32,8 +32,8 @@ router.post('/registo', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     try {
         const result = await pool.query('INSERT INTO utilizador (nome, email, password) VALUES ($1, $2, $3) RETURNING id', [nome, email, hashedPassword]);
-        const userId = result.rows[0].id;
-        const token = jwt.sign({ id: userId }, JWT_SECRET);
+        const newUser = result.rows[0]; 
+        const token = jwt.sign({ id: newUser.id }, JWT_SECRET);
         res.status(201).json({ token, user: { id: newUser.id, nome: newUser.nome, email: newUser.email }});
     } catch (error) {
         console.error(error);
@@ -62,6 +62,11 @@ router.post('/login', async (req, res) => {
         console.error(error);
         res.status(500).send('Error logging in');
     }
+});
+
+// Rota protegida
+router.get('/protegida', authenticateToken, (req, res) => {
+    res.json(req.user);
 });
 
 module.exports = router;
