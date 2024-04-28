@@ -25,13 +25,13 @@ function authenticateToken(req, res, next) {
 
 // Rota para registro de usuário
 router.post('/registo', async (req, res) => {
-    const { name, email, password } = req.body;
+    const { nome, email, password } = req.body;
     if (!passwordRegex.test(password)) {
         return res.status(400).send('Password must meet complexity requirements');
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     try {
-        const result = await pool.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id', [name, email, hashedPassword]);
+        const result = await pool.query('INSERT INTO utilizador (nome, email, password) VALUES ($1, $2, $3) RETURNING id', [nome, email, hashedPassword]);
         const userId = result.rows[0].id;
         const token = jwt.sign({ id: userId }, JWT_SECRET);
         res.status(201).json({ token });
@@ -46,7 +46,7 @@ router.post('/registo', async (req, res) => {
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
     try {
-        const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+        const result = await pool.query('SELECT * FROM utilizador WHERE email = $1', [email]);
 
         const user = result.rows[0];
 
