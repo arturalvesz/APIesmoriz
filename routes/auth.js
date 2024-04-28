@@ -51,6 +51,7 @@ router.post("/registo", async (req, res) => {
     const user = {
       id: novoUtilizador.rows[0].id,
       nome: novoUtilizador.rows[0].nome,
+      email: novoUtilizador.rows[0].email,
     };
     const accessToken = jwt.sign(user, process.env.JWT_SECRET_KEY);
     res.json({ accessToken, user});
