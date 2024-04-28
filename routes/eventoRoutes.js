@@ -3,7 +3,7 @@ const router = express.Router();
 const pool = require('../dbConfig');
 
 // Criar um novo evento
-router.post('/', async (req, res) => {
+router.post('/novo', async (req, res) => {
   try {
     const { nome, descricao, localizacao, data } = req.body;
     const novoEvento = await pool.query(
@@ -18,7 +18,7 @@ router.post('/', async (req, res) => {
 });
 
 // Obter todos os eventos
-router.get('/', async (req, res) => {
+router.get('/all', async (req, res) => {
   try {
     const todosEventos = await pool.query('SELECT * FROM Evento');
     res.json(todosEventos.rows);
@@ -44,7 +44,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Atualizar um evento
-router.put('/:id', async (req, res) => {
+router.put('/update/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { nome, descricao, localizacao, data } = req.body;
@@ -63,7 +63,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // Excluir um evento
-router.delete('/:id', async (req, res) => {
+router.delete('/delete/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const eventoExcluido = await pool.query('DELETE FROM Evento WHERE id = $1 RETURNING *', [id]);

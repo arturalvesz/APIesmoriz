@@ -3,7 +3,7 @@ const router = express.Router();
 const pool = require("../dbConfig");
 
 // Criar um novo atleta
-router.post("/", async (req, res) => {
+router.post("/novo", async (req, res) => {
   try {
     const { nome, escalao_id, user_id, num_atleta } = req.body;
     const novoAtleta = await pool.query(
@@ -18,7 +18,7 @@ router.post("/", async (req, res) => {
 });
 
 // Obter todos os atletas
-router.get("/", async (req, res) => {
+router.get("/all", async (req, res) => {
   try {
     const todosAtletas = await pool.query("SELECT * FROM Atleta");
     res.json(todosAtletas.rows);
@@ -44,7 +44,7 @@ router.get("/:id", async (req, res) => {
 });
 
 // Atualizar um atleta
-router.put("/:id", async (req, res) => {
+router.put("/update/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { nome, escalao_id, user_id, num_atleta } = req.body;
@@ -63,7 +63,7 @@ router.put("/:id", async (req, res) => {
 });
 
 // Excluir um atleta
-router.delete("/:id", async (req, res) => {
+router.delete("/delete/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const atletaExcluido = await pool.query(

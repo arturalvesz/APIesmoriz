@@ -3,7 +3,7 @@ const router = express.Router();
 const pool = require('../dbConfig');
 
 // Criar um novo sócio
-router.post('/', async (req, res) => {
+router.post('/novo', async (req, res) => {
   try {
     const { num_socio, user_id } = req.body;
     const novoSocio = await pool.query(
@@ -18,7 +18,7 @@ router.post('/', async (req, res) => {
 });
 
 // Obter todos os sócios
-router.get('/', async (req, res) => {
+router.get('/all', async (req, res) => {
   try {
     const todosSocios = await pool.query('SELECT * FROM Socio');
     res.json(todosSocios.rows);
@@ -44,7 +44,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Atualizar um sócio
-router.put('/:id', async (req, res) => {
+router.put('/update/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { num_socio, user_id } = req.body;
@@ -63,7 +63,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // Excluir um sócio
-router.delete('/:id', async (req, res) => {
+router.delete('/delete/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const socioExcluido = await pool.query('DELETE FROM Socio WHERE id = $1 RETURNING *', [id]);
@@ -76,5 +76,8 @@ router.delete('/:id', async (req, res) => {
     res.status(500).json({ error: 'Erro ao excluir sócio' });
   }
 });
+
+
+
 
 module.exports = router;

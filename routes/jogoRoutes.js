@@ -3,7 +3,7 @@ const router = express.Router();
 const pool = require('../dbConfig');
 
 // Criar um novo jogo
-router.post('/', async (req, res) => {
+router.post('/novo', async (req, res) => {
   try {
     const { data, nome, escalao_id, resultado } = req.body;
     const novoJogo = await pool.query(
@@ -18,7 +18,7 @@ router.post('/', async (req, res) => {
 });
 
 // Obter todos os jogos
-router.get('/', async (req, res) => {
+router.get('/all', async (req, res) => {
   try {
     const todosJogos = await pool.query('SELECT * FROM Jogo');
     res.json(todosJogos.rows);
@@ -44,7 +44,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Atualizar um jogo
-router.put('/:id', async (req, res) => {
+router.put('/update/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { data, nome, escalao_id, resultado } = req.body;
@@ -63,7 +63,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // Excluir um jogo
-router.delete('/:id', async (req, res) => {
+router.delete('/delete/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const jogoExcluido = await pool.query('DELETE FROM Jogo WHERE id = $1 RETURNING *', [id]);

@@ -3,7 +3,7 @@ const router = express.Router();
 const pool = require('../dbConfig');
 
 // Criar uma nova foto
-router.post('/', async (req, res) => {
+router.post('/novo', async (req, res) => {
   try {
     const { path, atleta_id, patrocinador_id } = req.body;
     const novaFoto = await pool.query(
@@ -18,7 +18,7 @@ router.post('/', async (req, res) => {
 });
 
 // Obter todas as fotos
-router.get('/', async (req, res) => {
+router.get('/all', async (req, res) => {
   try {
     const todasFotos = await pool.query('SELECT * FROM foto');
     res.json(todasFotos.rows);
@@ -44,7 +44,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Atualizar uma foto
-router.put('/:id', async (req, res) => {
+router.put('/update/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { path, atleta_id, patrocinador_id } = req.body;
@@ -63,7 +63,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // Excluir uma foto
-router.delete('/:id', async (req, res) => {
+router.delete('/delete/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const fotoExcluida = await pool.query('DELETE FROM foto WHERE id = $1 RETURNING *', [id]);

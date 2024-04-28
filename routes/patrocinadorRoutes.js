@@ -3,7 +3,7 @@ const router = express.Router();
 const pool = require('../dbConfig');
 
 // Criar um novo patrocinador
-router.post('/', async (req, res) => {
+router.post('/novo', async (req, res) => {
   try {
     const { nome, descricao } = req.body;
     const novoPatrocinador = await pool.query(
@@ -18,7 +18,7 @@ router.post('/', async (req, res) => {
 });
 
 // Obter todos os patrocinadores
-router.get('/', async (req, res) => {
+router.get('/all', async (req, res) => {
   try {
     const todosPatrocinadores = await pool.query('SELECT * FROM Patrocinador');
     res.json(todosPatrocinadores.rows);
@@ -44,7 +44,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Atualizar um patrocinador
-router.put('/:id', async (req, res) => {
+router.put('/update/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { nome, descricao } = req.body;
@@ -63,7 +63,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // Excluir um patrocinador
-router.delete('/:id', async (req, res) => {
+router.delete('/delete/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const patrocinadorExcluido = await pool.query('DELETE FROM Patrocinador WHERE id = $1 RETURNING *', [id]);

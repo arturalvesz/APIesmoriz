@@ -3,7 +3,7 @@ const router = express.Router();
 const pool = require('../dbConfig');
 
 // Criar um novo escalão
-router.post('/', async (req, res) => {
+router.post('/novo', async (req, res) => {
   try {
     const { nome } = req.body;
     const novoEscalao = await pool.query(
@@ -18,7 +18,7 @@ router.post('/', async (req, res) => {
 });
 
 // Obter todos os escalões
-router.get('/', async (req, res) => {
+router.get('/all', async (req, res) => {
   try {
     const todosEscaloes = await pool.query('SELECT * FROM Escalao');
     res.json(todosEscaloes.rows);
@@ -44,7 +44,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Atualizar um escalão
-router.put('/:id', async (req, res) => {
+router.put('/update/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { nome } = req.body;
@@ -63,7 +63,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // Excluir um escalão
-router.delete('/:id', async (req, res) => {
+router.delete('/delete/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const escalaoExcluido = await pool.query('DELETE FROM Escalao WHERE id = $1 RETURNING *', [id]);

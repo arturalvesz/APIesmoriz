@@ -3,7 +3,7 @@ const router = express.Router();
 const pool = require('../dbConfig');
 
 // Criar um novo utilizador
-router.post('registo', async (req, res) => {
+router.post('/registo', async (req, res) => {
   try {
     const { nome, email, password } = req.body;
     const novoUtilizador = await pool.query(
@@ -18,7 +18,7 @@ router.post('registo', async (req, res) => {
 });
 
 // Obter todos os utilizadores
-router.get('/', async (req, res) => {
+router.get('/all', async (req, res) => {
   try {
     const todosUtilizadores = await pool.query('SELECT * FROM utilizador');
     res.json(todosUtilizadores.rows);
@@ -44,7 +44,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Atualizar um utilizador
-router.put('/:id', async (req, res) => {
+router.put('/update/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { nome, email, password } = req.body;
@@ -63,7 +63,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // Excluir um utilizador
-router.delete('/:id', async (req, res) => {
+router.delete('/delete/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const utilizadorExcluido = await pool.query('DELETE FROM utilizador WHERE id = $1 RETURNING *', [id]);
@@ -74,6 +74,33 @@ router.delete('/:id', async (req, res) => {
   } catch (err) {
     console.error('Erro ao excluir utilizador:', err);
     res.status(500).json({ error: 'Erro ao excluir utilizador' });
+  }
+});
+
+// Associar um sócio a um usuário
+router.post('/addSocioToUtilizador', async (req, res) => {
+  try {
+    const { idUsuario, numSocio } = req.body;
+    
+    // Verificar se o usuário existe
+    const usuario = await pool.query('SELECT * FROM utilizador WHERE id = $1', [idUsuario]);
+    if (usuario.rows.length === 0) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+
+    // Verificar se o sócio existe
+    const socio = await pool.query('SELECT * FROM socio WHERE num_socio = $1', [numSocio]);
+    if (socio.rows.length === 0) {
+      return res.status(404).json({ error: 'Sócio não encontrado' });
+    }
+
+    // Atualizar o ID do usuário no sócio
+    await pool.query('UPDATE socio SET user_id = $1 WHERE num_socio = $2', [idUsuario, numSocio]);
+
+    res.json({ message: 'Sócio associado ao usuário com sucesso' });
+  } catch (err) {
+    console.error('Erro ao associar sócio ao usuário:', err);
+    res.status(500).json({ error: 'Erro ao associar sócio ao usuário' });
   }
 });
 
