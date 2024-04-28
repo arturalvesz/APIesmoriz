@@ -3,13 +3,19 @@ const router = express.Router();
 const pool = require('../dbConfig');
 
 // Criar um novo utilizador
-router.post('/registo', async (req, res) => {
+router.post('/novo', async (req, res) => {
   try {
     const { nome, email, password } = req.body;
+
+    // Hashear a senha
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Inserir o novo usuário com a senha hasheada
     const novoUtilizador = await pool.query(
       'INSERT INTO utilizador (nome, email, password) VALUES ($1, $2, $3) RETURNING *',
-      [nome, email, password]
+      [nome, email, hashedPassword]
     );
+    
     res.json(novoUtilizador.rows[0]);
   } catch (err) {
     console.error('Erro ao criar utilizador:', err);
