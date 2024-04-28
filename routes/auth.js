@@ -53,7 +53,7 @@ router.post("/registo", async (req, res) => {
       nome: novoUtilizador.rows[0].nome,
     };
     const accessToken = jwt.sign(user, process.env.JWT_SECRET_KEY);
-    res.json({ accessToken });
+    res.json({ accessToken, user});
   } catch (err) {
     console.error("Erro ao criar utilizador:", err);
     res.status(500).json({ error: "Erro ao criar utilizador" });
