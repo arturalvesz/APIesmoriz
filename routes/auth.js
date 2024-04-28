@@ -31,7 +31,7 @@ router.post('/registo', async (req, res) => {
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     try {
-        const result = await pool.query('INSERT INTO utilizador (nome, email, password) VALUES ($1, $2, $3) RETURNING id', [nome, email, hashedPassword]);
+        const result = await pool.query('INSERT INTO utilizador (nome, email, password) VALUES ($1, $2, $3) RETURNING id, nome, email', [nome, email, hashedPassword]);
         const newUser = result.rows[0]; 
         const token = jwt.sign({ id: newUser.id }, JWT_SECRET);
         res.status(201).json({ token, user: { id: newUser.id, nome: newUser.nome, email: newUser.email }});
@@ -40,7 +40,6 @@ router.post('/registo', async (req, res) => {
         res.status(500).send('Error registering user');
     }
 });
-
 
 // Rota para login de usuário
 router.post('/login', async (req, res) => {
