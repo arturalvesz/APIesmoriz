@@ -3,7 +3,7 @@ const router = express.Router();
 const pool = require('../dbConfig');
 
 // Criar um novo utilizador
-router.post('/', async (req, res) => {
+router.post('/registo', async (req, res) => {
   try {
     const { nome, email, password } = req.body;
     const novoUtilizador = await pool.query(
@@ -15,7 +15,7 @@ router.post('/', async (req, res) => {
     console.error('Erro ao criar utilizador:', err);
     res.status(500).json({ error: 'Erro ao criar utilizador' });
   }
-}); 
+});
 
 // Obter todos os utilizadores
 router.get('/', async (req, res) => {
