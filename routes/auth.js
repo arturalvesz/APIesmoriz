@@ -3,108 +3,74 @@ const jwt = require("jsonwebtoken");
 const express = require("express");
 const router = express.Router();
 const pool = require("../dbConfig");
+require('dotenv').config(); 
 
 // Expressão regular para validação de senha
 const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-// Função para verificar se o usuário está autenticado
-function authenticateToken(req, res, next) {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
-  if (token == null) return res.sendStatus(401);
+// Função para validar a senha
+const validatePassword = (password) => {
+  return passwordRegex.test(password);
+};
 
-  jwt.verify(token, process.env.JWT_SECRET_KEY, (err, user) => {
-    if (err) return res.sendStatus(403);
-    req.user = user;
-    next();
-  });
-}
 
-// Função para hashear a senha
-async function hashPassword(password) {
-  const saltRounds = 10;
-  return await bcrypt.hash(password, saltRounds);
-}
-
-// Função para comparar a senha hasheada com a senha fornecida pelo usuário
-async function comparePassword(password, hashedPassword) {
-  return await bcrypt.compare(password, hashedPassword);
-}
-
-// Criar um novo utilizador e gerar token JWT
-router.post("/registo", async (req, res) => {
-  try {
-    const { nome, email, password } = req.body;
-
-    // Verificar se a senha atende aos critérios da expressão regular
-    if (!passwordRegex.test(password)) {
-      return res.status(400).json({ error: "A senha não atende aos critérios de segurança" });
+// Rota para registro de usuários
+router.post('/registo', async (req, res) => {
+    const { name, email, password } = req.body;
+  
+    // Verifica se a senha atende aos critérios
+    if (!validatePassword(password)) {
+      return res.status(400).json({ error: 'A senha deve conter no mínimo 8 caracteres, incluindo pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial.' });
     }
-
-    const hashedPassword = await hashPassword(password);
-
-    const novoUtilizador = await pool.query(
-      "INSERT INTO utilizador (nome, email, password) VALUES ($1, $2, $3) RETURNING *",
-      [nome, email, hashedPassword]
-    );
-
-    const user = {
-      id: novoUtilizador.rows[0].id,
-      nome: novoUtilizador.rows[0].nome,
-      email: novoUtilizador.rows[0].email,
-    };
-    const accessToken = jwt.sign(user, process.env.JWT_SECRET_KEY);
-    res.json({ accessToken, user});
-  } catch (err) {
-    console.error("Erro ao criar utilizador:", err);
-    res.status(500).json({ error: "Erro ao criar utilizador" });
-  }
-});
-
-router.post("/login", async (req, res) => {
+  
     try {
-      const { email, password } = req.body;
-  
-      // Buscar o utilizador pelo email no banco de dados
-      const userResult = await pool.query(
-        "SELECT * FROM utilizador WHERE email = $1",
-        [email]
-      );
-  
-      // Verificar se o utilizador existe
-      if (userResult.rows.length === 0) {
-        return res.status(401).json({ error: "Credenciais inválidas" });
+      // Verifica se o email já está em uso
+      const userWithEmail = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+      if (userWithEmail.rows.length > 0) {
+        return res.status(400).json({ error: 'Email já registrado.' });
       }
   
-      const user = userResult.rows[0];
-  
-      // Verificar a senha
-      const passwordMatch = await comparePassword(password, user.password);
-  
-      if (!passwordMatch) {
-        return res.status(401).json({ error: "Credenciais inválidas" });
-      }
-  
-      // Se as credenciais estiverem corretas, gerar token JWT
-      const accessToken = jwt.sign(
-        {
-          id: user.id,
-          nome: user.nome,
-          email: user.email,
-        },
-        process.env.JWT_SECRET_KEY
-      );
-  
-      res.json({ accessToken, user });
-    } catch (err) {
-      console.error("Erro ao fazer login:", err);
-      res.status(500).json({ error: "Erro ao fazer login" });
+      // Hash da senha antes de salvar no banco de dados
+      const hashedPassword = await bcrypt.hash(password, 10);
+      
+      // Insere o novo usuário no banco de dados
+      const newUser = await pool.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *', [name, email, hashedPassword]);
+      
+      res.status(201).json({ message: 'Usuário registrado com sucesso.', user: newUser.rows[0] });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Erro ao registrar usuário.' });
     }
   });
 
-// Rotas protegidas
-router.get("/protegida", authenticateToken, (req, res) => {
-  res.json(req.user);
-});
+// Rota para login de usuários
+router.post('/login', async (req, res) => {
+    const { email, password } = req.body;
+  
+    try {
+      // Busca o usuário pelo email no banco de dados
+      const user = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+  
+      if (user.rows.length === 0) {
+        return res.status(401).send('Credenciais inválidas.');
+      }
+  
+      const hashedPassword = user.rows[0].password;
+  
+      // Compara a senha hasheada no banco de dados com a senha fornecida
+      const match = await bcrypt.compare(password, hashedPassword);
+      if (!match) {
+        return res.status(401).send('Credenciais inválidas.');
+      }
+  
+      // Gera um token JWT com o email do usuário
+      const token = jwt.sign({ email: user.rows[0].email }, process.env.JWT_SECRET_KEY);
+      res.send({ token });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send('Erro ao fazer login.');
+    }
+  });
+
 
 module.exports = router;
