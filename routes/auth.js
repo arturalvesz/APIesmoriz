@@ -70,14 +70,14 @@ router.post("/login", async (req, res) => {
       [email]
     );
     if (utilizador.rows.length === 0) {
-      return res.status(401).json({ error: "Credenciais inválidas" });
+      return res.status(401).json({ error: "Email inválido" });
     }
 
     const hashedPassword = utilizador.rows[0].password;
     const passwordMatch = await comparePassword(password, hashedPassword);
 
     if (!passwordMatch) {
-      return res.status(401).json({ error: "Credenciais inválidas" });
+      return res.status(401).json({ error: "Password inválida" });
     }
 
     const user = { id: utilizador.rows[0].id, nome: utilizador.rows[0].nome };
