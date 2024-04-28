@@ -26,7 +26,7 @@ app.use('/api/socios', socioRoutes);
 app.use('/api/eventos', eventoRoutes);
 app.use('/api/patrocinadores', patrocinadorRoutes);
 app.use('/api/utilizadores', utilizadorRoutes);
-app.use('/api/auth', auth)
+app.use('/api/auth', auth);
 
 
 app.listen(PORT, () => {
