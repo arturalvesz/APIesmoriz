@@ -3,7 +3,7 @@ const router = express.Router();
 const pool = require('../dbConfig');
 
 // Criar um novo utilizador
-router.post('/registo', async (req, res) => {
+router.post('registo', async (req, res) => {
   try {
     const { nome, email, password } = req.body;
     const novoUtilizador = await pool.query(
