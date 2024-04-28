@@ -24,7 +24,7 @@ function authenticateToken(req, res, next) {
 }
 
 // Rota para registro de usuário
-app.post('/registo', async (req, res) => {
+router.post('/registo', async (req, res) => {
     const { name, email, password } = req.body;
     if (!passwordRegex.test(password)) {
         return res.status(400).send('Password must meet complexity requirements');
@@ -43,7 +43,7 @@ app.post('/registo', async (req, res) => {
 
 
 // Rota para login de usuário
-app.post('/login', async (req, res) => {
+router.post('/login', async (req, res) => {
     const { email, password } = req.body;
     try {
         const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
