@@ -61,33 +61,46 @@ router.post("/registo", async (req, res) => {
   }
 });
 
-// Autenticar um utilizador e gerar token JWT
 router.post("/login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const utilizador = await pool.query(
-      "SELECT * FROM utilizador WHERE email = $1",
-      [email]
-    );
-    if (utilizador.rows.length === 0) {
-      return res.status(401).json({ error: "Email inválido" });
+    try {
+      const { email, password } = req.body;
+  
+      // Buscar o utilizador pelo email no banco de dados
+      const userResult = await pool.query(
+        "SELECT * FROM utilizador WHERE email = $1",
+        [email]
+      );
+  
+      // Verificar se o utilizador existe
+      if (userResult.rows.length === 0) {
+        return res.status(401).json({ error: "Credenciais inválidas" });
+      }
+  
+      const user = userResult.rows[0];
+  
+      // Verificar a senha
+      const passwordMatch = await comparePassword(password, user.password);
+  
+      if (!passwordMatch) {
+        return res.status(401).json({ error: "Credenciais inválidas" });
+      }
+  
+      // Se as credenciais estiverem corretas, gerar token JWT
+      const accessToken = jwt.sign(
+        {
+          id: user.id,
+          nome: user.nome,
+          email: user.email,
+        },
+        process.env.JWT_SECRET_KEY
+      );
+  
+      res.json({ accessToken, user });
+    } catch (err) {
+      console.error("Erro ao fazer login:", err);
+      res.status(500).json({ error: "Erro ao fazer login" });
     }
-
-    const hashedPassword = utilizador.rows[0].password;
-    const passwordMatch = await comparePassword(password, hashedPassword);
-
-    if (!passwordMatch) {
-      return res.status(401).json({ error: "Password inválida" });
-    }
-
-    const user = { id: utilizador.rows[0].id, nome: utilizador.rows[0].nome };
-    const accessToken = jwt.sign(user, process.env.JWT_SECRET_KEY);
-    res.json({ accessToken });
-  } catch (err) {
-    console.error("Erro ao fazer login:", err);
-    res.status(500).json({ error: "Erro ao fazer login" });
-  }
-});
+  });
 
 // Rotas protegidas
 router.get("/protegida", authenticateToken, (req, res) => {
