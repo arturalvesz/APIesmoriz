@@ -97,14 +97,16 @@ router.post('/adicionar-socio', async (req, res) => {
   const { userId, numSocio, dataNascimento } = req.body;
   try {
     // Verificar se o número de sócio já existe
-    const socioExistente = await pool.query('SELECT * FROM socio WHERE num_socio = $1', [numSocio]);
+    const socioExistente = await pool.query('SELECT * FROM socio WHERE num_socio = $1 AND data_nascimento = $2', [numSocio]);
     if (socioExistente.rows.length === 0) {
       res.status(404).json({ error: 'Número de sócio não encontrado' });
     } else if (socioExistente.rows[0].user_id !== null) {
       res.status(400).json({ error: 'Número de sócio já está associado a outro usuário' });
+    } else if (socioExistente.rows[0].data_nascimento !== dataNascimento) {
+      res.status(400).json({ error: 'Data de nascimento não corresponde ao sócio encontrado' });
     } else {
       // Adicionar o usuário ao sócio existente
-      await pool.query('UPDATE socio SET user_id = $1, data_nascimento = $2 WHERE num_socio = $3', [userId, dataNascimento, numSocio]);
+      await pool.query('UPDATE socio SET user_id = $1 WHERE num_socio = $2 AND data_nascimento = $3', [userId, numSocio]);
       res.status(200).json({ message: 'Usuário adicionado ao sócio com sucesso' });
     }
   } catch (error) {
@@ -112,6 +114,5 @@ router.post('/adicionar-socio', async (req, res) => {
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 });
-
 
 module.exports = router;
