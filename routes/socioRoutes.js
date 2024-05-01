@@ -97,7 +97,7 @@ router.post('/adicionar-socio', async (req, res) => {
   const { userId, numSocio, dataNascimento } = req.body;
   try {
     // Verificar se o número de sócio já existe
-    const socioExistente = await pool.query('SELECT * FROM socio WHERE num_socio = $1 AND data_nascimento = $2', [numSocio, dataNascimento]);
+    const socioExistente = await pool.query('SELECT * FROM socio WHERE num_socio = $1', [numSocio]);
     if (socioExistente.rows.length === 0) {
       res.status(404).json({ error: 'Número de sócio não encontrado' });
     } else if (socioExistente.rows[0].user_id !== null) {
