@@ -5,10 +5,11 @@ const pool = require('../dbConfig');
 // Criar um novo sócio
 router.post('/novo', async (req, res) => {
   try {
-    const { num_socio, user_id } = req.body;
+    const { num_socio, data_nascimento } = req.body;
+    
     const novoSocio = await pool.query(
-      'INSERT INTO Socio (num_socio, user_id) VALUES ($1, $2) RETURNING *',
-      [num_socio, user_id]
+      'INSERT INTO Socio (num_socio, data_nascimento) VALUES ($1, $2) RETURNING *',
+      [num_socio, data_nascimento]
     );
     res.json(novoSocio.rows[0]);
   } catch (err) {
@@ -16,7 +17,6 @@ router.post('/novo', async (req, res) => {
     res.status(500).json({ error: 'Erro ao criar sócio' });
   }
 });
-
 // Obter todos os sócios
 router.get('/all', async (req, res) => {
   try {
