@@ -102,11 +102,11 @@ router.post('/adicionar-socio', async (req, res) => {
       res.status(404).json({ error: 'Número de sócio não encontrado' });
     } else if (socioExistente.rows[0].user_id !== null) {
       res.status(400).json({ error: 'Número de sócio já está associado a outro usuário' });
-    } else if (socioExistente.rows[0].data_nascimento !== dataNascimento) {
+    } else if (socioExistente.rows[0].data_nascimento.toISOString().split('T')[0] !== new Date(dataNascimento).toISOString().split('T')[0]) {
       res.status(400).json({ error: 'Data de nascimento não corresponde ao sócio encontrado' });
     } else {
       // Adicionar o usuário ao sócio existente
-      await pool.query('UPDATE socio SET user_id = $1 WHERE num_socio = $2 AND data_nascimento = $3', [userId, numSocio, dataNascimento]);
+      await pool.query('UPDATE socio SET user_id = $1 WHERE num_socio = $2', [userId, numSocio]);
       res.status(200).json({ message: 'Usuário adicionado ao sócio com sucesso' });
     }
   } catch (error) {
@@ -114,5 +114,6 @@ router.post('/adicionar-socio', async (req, res) => {
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 });
+
 
 module.exports = router;
