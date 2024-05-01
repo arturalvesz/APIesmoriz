@@ -77,6 +77,40 @@ router.delete('/delete/:id', async (req, res) => {
   }
 });
 
+// Rota para verificar se o usuário já tem um sócio associado
+router.get('/verificar-socio/:userId', async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const result = await pool.query('SELECT * FROM socio WHERE user_id = $1', [userId]);
+    if (result.rows.length > 0) {
+      res.status(200).json({ hasSocio: true });
+    } else {
+      res.status(200).json({ hasSocio: false });
+    }
+  } catch (error) {
+    console.error('Erro ao verificar sócio:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+// Rota para adicionar um sócio a um usuário
+router.post('/adicionar-socio', async (req, res) => {
+  const { userId, numSocio, dataNascimento } = req.body;
+  try {
+    // Verificar se o usuário já tem um sócio associado
+    const socioExistente = await pool.query('SELECT * FROM socio WHERE user_id = $1', [userId]);
+    if (socioExistente.rows.length > 0) {
+      res.status(400).json({ error: 'Usuário já possui um sócio associado' });
+    } else {
+      // Adicionar o sócio ao usuário
+      await pool.query('INSERT INTO socio (user_id, num_socio, data_nascimento) VALUES ($1, $2, $3)', [userId, numSocio, dataNascimento]);
+      res.status(201).json({ message: 'Sócio adicionado com sucesso' });
+    }
+  } catch (error) {
+    console.error('Erro ao adicionar sócio:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
 
 
 
