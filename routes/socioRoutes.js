@@ -9,7 +9,7 @@ router.post('/novo', async (req, res) => {
     
     const novoSocio = await pool.query(
       'INSERT INTO Socio (num_socio, data_nascimento) VALUES ($1, $2) RETURNING *',
-      [num_socio, data_nascimento]
+      [num_socio, new Date(data_nascimento).toISOString().split('T')[0]] // Extrai apenas a data
     );
     res.json(novoSocio.rows[0]);
   } catch (err) {
