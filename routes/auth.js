@@ -54,12 +54,28 @@ router.get('/get-user-id/:token', async (req, res) => {
         const decodedToken = jwt.verify(token, JWT_SECRET);
         const userId = decodedToken.id;
         // Retornar o ID do usuário na resposta
-        res.json({ userId });
+        res.json(userId);
     } catch (error) {
         console.error('Erro ao verificar o token:', error);
         res.status(400).json({ error: 'Token inválido ou expirado' });
     }
 });
+
+router.get('/get-user-id2/:token', async (req, res) => {
+    // Extrair o token JWT dos parâmetros da rota
+    const token = req.params.token;
+    try {
+        // Verificar se o token JWT é válido e decodificá-lo para obter o ID do usuário
+        const decodedToken = jwt.verify(token, JWT_SECRET);
+        const userId = decodedToken.id;
+        // Retornar o ID do usuário na resposta
+        res.send(userId.toString());
+    } catch (error) {
+        console.error('Erro ao verificar o token:', error);
+        res.status(400).json({ error: 'Token inválido ou expirado' });
+    }
+});
+
 
 
 // Rota para login de usuário
