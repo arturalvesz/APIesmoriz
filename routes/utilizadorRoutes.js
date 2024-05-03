@@ -15,7 +15,6 @@ router.post('/novo', async (req, res) => {
       'INSERT INTO utilizador (nome, email, password) VALUES ($1, $2, $3) RETURNING *',
       [nome, email, hashedPassword]
     );
-    
     res.json(novoUtilizador.rows[0]);
   } catch (err) {
     console.error('Erro ao criar utilizador:', err);

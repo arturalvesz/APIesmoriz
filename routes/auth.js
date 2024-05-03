@@ -25,7 +25,12 @@ function authenticateToken(req, res, next) {
 
 // Rota para registo de usuário
 router.post('/registo', async (req, res) => {
-    const { nome, email, password } = req.body;
+    const { nome, email, password, confirmPassword } = req.body;
+    // Verificar se a senha e a senha confirmada coincidem
+    if (password !== confirmPassword) {
+        return res.status(400).send('Passwords do not match');
+    }
+    // Verificar a complexidade da senha
     if (!passwordRegex.test(password)) {
         return res.status(400).send('Password must meet complexity requirements');
     }
