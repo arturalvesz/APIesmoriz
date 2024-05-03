@@ -78,8 +78,8 @@ router.delete('/delete/:id', async (req, res) => {
 });
 
 // Rota para verificar se o usuário já tem um sócio associado
-router.post('/verificar-socio', async (req, res) => {
-  const { userId } = req.body;
+router.get('/verificar-socio/:userId', async (req, res) => {
+  const userId = req.params.userId;
   try {
     const result = await pool.query('SELECT * FROM socio WHERE user_id = $1', [userId]);
     if (result.rows.length > 0) {
@@ -92,6 +92,7 @@ router.post('/verificar-socio', async (req, res) => {
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 });
+
 
 router.post('/adicionar-socio', async (req, res) => {
   const { userId, numSocio, dataNascimento } = req.body;
