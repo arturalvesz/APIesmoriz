@@ -95,18 +95,22 @@ router.get('/verificar-socio/:userId', async (req, res) => {
 
 
 router.post('/adicionar-socio', async (req, res) => {
-  const { userId, numSocio, dataNascimento } = req.body;
+  const { userId, num_socio, data_nascimento } = req.body;
   try {
 
-    const numSocioInt = parseInt(numSocio);
+    const numSocioInt = parseInt(num_socio);
     const userIdInt = parseInt(userId);
+
+    // Convertendo a data de nascimento do formato "dia-mês-ano" para "ano-mês-dia"
+    const [dia, mes, ano] = data_nascimento.split('-');
+    const dataNascimentoDB = `${ano}-${mes}-${dia}`;
     // Verificar se o número de sócio já existe
     const socioExistente = await pool.query('SELECT * FROM socio WHERE num_socio = $1', [numSocioInt]);
     if (socioExistente.rows.length === 0) {
       res.status(404).json({ error: 'Número de sócio não encontrado' });
     } else if (socioExistente.rows[0].user_id !== null) {
       res.status(400).json({ error: 'Número de sócio já está associado a outro usuário' });
-    } else if (socioExistente.rows[0].data_nascimento.toISOString().split('T')[0] !== new Date(dataNascimento).toISOString().split('T')[0]) {
+    } else if (socioExistente.rows[0].data_nascimento.toISOString().split('T')[0] !== new Date(dataNascimentoDB).toISOString().split('T')[0]) {
       res.status(400).json({ error: 'Data de nascimento não corresponde ao sócio encontrado' });
     } else {
       // Adicionar o usuário ao sócio existente
