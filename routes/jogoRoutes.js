@@ -7,13 +7,11 @@ router.post("/novo", async (req, res) => {
   try {
     const { data, hora, nome, escalao_id, resultado } = req.body;
     // Parse a data no formato "dia-mes-ano" para "ano-mes-dia" (YYYY-MM-DD)
-    const [dia, mes, ano] = data.split("-");
-    const dataFormatada = `${ano}-${mes}-${dia}`;
-    // Combine a data e hora no formato desejado (YYYY-MM-DD HH:MM:SS)
-    const dataHora = `${dataFormatada} ${hora}:00`;
+    const dataFormatada = format(parse(data, 'dd-MM-yyyy', new Date()), 'yyyy-MM-dd');
+
     const novoJogo = await pool.query(
-      "INSERT INTO Jogo (data, nome, escalao_id, resultado) VALUES ($1, $2, $3, $4) RETURNING *",
-      [dataHora, nome, escalao_id, resultado]
+      "INSERT INTO Jogo (data, hora, nome, escalao_id, resultado) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+      [dataFormatada, hora, nome, escalao_id, resultado]
     );
     res.json(novoJogo.rows[0]);
   } catch (err) {
