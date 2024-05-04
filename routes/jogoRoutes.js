@@ -7,8 +7,9 @@ router.post("/novo", async (req, res) => {
   try {
     const { data, hora, nome, escalao_id, resultado } = req.body;
     // Parse a data no formato "dia-mes-ano" para "ano-mes-dia" (YYYY-MM-DD)
-    const dataFormatada = format(parse(data, 'dd-MM-yyyy', new Date()), 'yyyy-MM-dd');
-
+    const [dia, mes, ano] = data.split("-");
+    const dataFormatada = `${ano}-${mes}-${dia}`;
+    
     const novoJogo = await pool.query(
       "INSERT INTO Jogo (data, hora, nome, escalao_id, resultado) VALUES ($1, $2, $3, $4, $5) RETURNING *",
       [dataFormatada, hora, nome, escalao_id, resultado]
