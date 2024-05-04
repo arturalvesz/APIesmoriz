@@ -32,6 +32,7 @@ router.get("/all", async (req, res) => {
   }
 });
 
+//obter array de jogos de determinado escalao
 router.get("/all/:escalao_id", async (req, res) => {
   try {
     const { escalao_id } = req.params;
@@ -40,6 +41,22 @@ router.get("/all/:escalao_id", async (req, res) => {
   } catch (err) {
     console.error("Erro ao obter jogos:", err);
     res.status(500).json({ error: "Erro ao obter jogos" });
+  }
+});
+
+//obter um jogo de um determinado escalao
+router.get("/:escalao_id/:jogo_id", async (req, res) => {
+  try {
+    const { escalao_id, jogo_id } = req.params;
+    const jogo = await pool.query("SELECT * FROM Jogo WHERE escalao_id = $1 AND id = $2", [escalao_id, jogo_id]);
+    if (jogo.rows.length === 0) {
+      res.status(404).json({ error: "Jogo não encontrado" });
+      return;
+    }
+    res.json(jogo.rows[0]);
+  } catch (err) {
+    console.error("Erro ao obter jogo:", err);
+    res.status(500).json({ error: "Erro ao obter jogo" });
   }
 });
 
