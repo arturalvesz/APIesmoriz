@@ -10,6 +10,7 @@ const atletaRoutes = require('./routes/atletaRoutes');
 const escalaoRoutes = require('./routes/escalaoRoutes');
 const fotoRoutes = require('./routes/fotoRoutes');
 const jogoRoutes = require('./routes/jogoRoutes');
+const setsRoutes = require('./routes/setsRoutes');
 const socioRoutes = require('./routes/socioRoutes');
 const eventoRoutes = require('./routes/eventoRoutes');
 const patrocinadorRoutes = require('./routes/patrocinadorRoutes');
@@ -26,6 +27,7 @@ app.use('/api/socios', socioRoutes);
 app.use('/api/eventos', eventoRoutes);
 app.use('/api/patrocinadores', patrocinadorRoutes);
 app.use('/api/utilizadores', utilizadorRoutes);
+app.use('/api/sets', setsRoutes);
 app.use('/api/auth', auth);
 
 
