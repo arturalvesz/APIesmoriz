@@ -23,7 +23,7 @@ router.post("/novo", async (req, res) => {
 // Obter todos os jogos
 router.get("/all", async (req, res) => {
   try {
-    const todosJogos = await pool.query("SELECT * FROM Jogo");
+    const todosJogos = await pool.query("SELECT id, to_char(data, 'DD-MM-YYYY') AS data, to_char(hora, 'HH24:MI') AS hora, equipa_casa, escalao_id, resultado_casa, equipa_fora, resultado_fora FROM Jogo");
     res.json(todosJogos.rows);
   } catch (err) {
     console.error("Erro ao obter jogos:", err);
@@ -35,7 +35,7 @@ router.get("/all", async (req, res) => {
 router.get("/all/:escalao_id", async (req, res) => {
   try {
     const { escalao_id } = req.params;
-    const todosJogos = await pool.query("SELECT * FROM Jogo WHERE escalao_id = $1", [escalao_id]);
+    const todosJogos = await pool.query("SELECT id, to_char(data, 'DD-MM-YYYY') AS data, to_char(hora, 'HH24:MI') AS hora, equipa_casa, escalao_id, resultado_casa, equipa_fora, resultado_fora FROM Jogo WHERE escalao_id = $1", [escalao_id]);
     res.json(todosJogos.rows);
   } catch (err) {
     console.error("Erro ao obter jogos:", err);
@@ -47,7 +47,7 @@ router.get("/all/:escalao_id", async (req, res) => {
 router.get("/:escalao_id/:jogo_id", async (req, res) => {
   try {
     const { escalao_id, jogo_id } = req.params;
-    const jogo = await pool.query("SELECT * FROM Jogo WHERE escalao_id = $1 AND id = $2", [escalao_id, jogo_id]);
+    const jogo = await pool.query("SELECT id, to_char(data, 'DD-MM-YYYY') AS data, to_char(hora, 'HH24:MI') AS hora, equipa_casa, escalao_id, resultado_casa, equipa_fora, resultado_fora FROM Jogo WHERE escalao_id = $1 AND id = $2", [escalao_id, jogo_id]);
     if (jogo.rows.length === 0) {
       res.status(404).json({ error: "Jogo não encontrado" });
       return;
@@ -63,7 +63,7 @@ router.get("/:escalao_id/:jogo_id", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const jogo = await pool.query("SELECT * FROM Jogo WHERE id = $1", [id]);
+    const jogo = await pool.query("SELECT id, to_char(data, 'DD-MM-YYYY') AS data, to_char(hora, 'HH24:MI') AS hora, equipa_casa, escalao_id, resultado_casa, equipa_fora, resultado_fora FROM Jogo WHERE id = $1", [id]);
     if (jogo.rows.length === 0) {
       return res.status(404).json({ error: "Jogo não encontrado" });
     }
@@ -73,7 +73,6 @@ router.get("/:id", async (req, res) => {
     res.status(500).json({ error: "Erro ao obter jogo pelo ID" });
   }
 });
-
 // Atualizar um jogo
 router.put("/update/:id", async (req, res) => {
   try {
