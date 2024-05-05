@@ -36,24 +36,34 @@ async function atualizarResultadosJogo(jogoId) {
 
 // Rota para adicionar um novo conjunto de pontuações
 router.post("/novo", async (req, res) => {
-  try {
-    const { jogo_id, numero_set, pontos_casa, pontos_fora } = req.body;
-
-    // Insere o novo conjunto de pontuações na tabela sets
-    const novaEntrada = await pool.query(
-      "INSERT INTO sets (jogo_id, numero_set, pontos_casa, pontos_fora) VALUES ($1, $2, $3, $4) RETURNING *",
-      [jogo_id, numero_set, pontos_casa, pontos_fora]
-    );
-
-    // Atualiza os resultados do jogo
-    await atualizarResultadosJogo(jogo_id);
-
-    res.json(novaEntrada.rows[0]);
-  } catch (err) {
-    console.error("Erro ao criar nova entrada:", err);
-    res.status(500).json({ error: "Erro ao criar nova entrada" });
-  }
-});
+    try {
+      const { jogo_id, numero_set, pontos_casa, pontos_fora } = req.body;
+  
+      // Verifica se já existe um conjunto de pontuações com o mesmo numero_set para o mesmo jogo_id
+      const existemConjuntos = await pool.query(
+        "SELECT COUNT(*) FROM sets WHERE jogo_id = $1 AND numero_set = $2",
+        [jogo_id, numero_set]
+      );
+  
+      if (existemConjuntos.rows[0].count > 0) {
+        return res.status(400).json({ error: "Este set já tem pontuações" });
+      }
+  
+      // Insere o novo conjunto de pontuações na tabela sets
+      const novaEntrada = await pool.query(
+        "INSERT INTO sets (jogo_id, numero_set, pontos_casa, pontos_fora) VALUES ($1, $2, $3, $4) RETURNING *",
+        [jogo_id, numero_set, pontos_casa, pontos_fora]
+      );
+  
+      // Atualiza os resultados do jogo
+      await atualizarResultadosJogo(jogo_id);
+  
+      res.json(novaEntrada.rows[0]);
+    } catch (err) {
+      console.error("Erro ao criar nova entrada:", err);
+      res.status(500).json({ error: "Erro ao criar nova entrada" });
+    }
+  });
 
 router.get("/jogo/:jogo_id", async (req, res) => {
   try {
@@ -97,25 +107,35 @@ router.get("/:id", async (req, res) => {
 // Atualizar uma entrada específica na tabela sets
 // Rota para atualizar um conjunto de pontuações existente
 router.put("/update/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { jogo_id, numero_set, pontos_casa, pontos_fora } = req.body;
-
-    // Atualiza o conjunto de pontuações na tabela sets
-    const entradaAtualizada = await pool.query(
-      "UPDATE sets SET jogo_id = $1, numero_set = $2, pontos_casa = $3, pontos_fora = $4 WHERE id = $5 RETURNING *",
-      [jogo_id, numero_set, pontos_casa, pontos_fora, id]
-    );
-
-    // Atualiza os resultados do jogo
-    await atualizarResultadosJogo(jogo_id);
-
-    res.json(entradaAtualizada.rows[0]);
-  } catch (err) {
-    console.error("Erro ao atualizar entrada:", err);
-    res.status(500).json({ error: "Erro ao atualizar entrada" });
-  }
-});
+    try {
+      const { id } = req.params;
+      const { jogo_id, numero_set, pontos_casa, pontos_fora } = req.body;
+  
+      // Verifica se já existe um conjunto de pontuações com o mesmo numero_set para o mesmo jogo_id, excluindo o conjunto que está sendo atualizado
+      const existemConjuntos = await pool.query(
+        "SELECT COUNT(*) FROM sets WHERE jogo_id = $1 AND numero_set = $2 AND id != $3",
+        [jogo_id, numero_set, id]
+      );
+  
+      if (existemConjuntos.rows[0].count > 0) {
+        return res.status(400).json({ error: "Este set já tem pontuações" });
+      }
+  
+      // Atualiza o conjunto de pontuações na tabela sets
+      const entradaAtualizada = await pool.query(
+        "UPDATE sets SET jogo_id = $1, numero_set = $2, pontos_casa = $3, pontos_fora = $4 WHERE id = $5 RETURNING *",
+        [jogo_id, numero_set, pontos_casa, pontos_fora, id]
+      );
+  
+      // Atualiza os resultados do jogo
+      await atualizarResultadosJogo(jogo_id);
+  
+      res.json(entradaAtualizada.rows[0]);
+    } catch (err) {
+      console.error("Erro ao atualizar entrada:", err);
+      res.status(500).json({ error: "Erro ao atualizar entrada" });
+    }
+  });
 
 // Excluir uma entrada específica na tabela sets
 router.delete("/delete/:id", async (req, res) => {
