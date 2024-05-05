@@ -7,7 +7,7 @@ router.post('/novo', async (req, res) => {
   try {
     const { nome } = req.body;
     const novoEscalao = await pool.query(
-      'INSERT INTO Escalao (nome) VALUES ($1) RETURNING *',
+      'INSERT INTO Escalao (nome) VALUES ($1) RETURNING *, nome AS escalaoNome',
       [nome]
     );
     res.json(novoEscalao.rows[0]);
@@ -20,7 +20,7 @@ router.post('/novo', async (req, res) => {
 // Obter todos os escalões
 router.get('/all', async (req, res) => {
   try {
-    const todosEscaloes = await pool.query('SELECT * FROM Escalao');
+    const todosEscaloes = await pool.query('SELECT *, nome AS escalaoNome FROM Escalao');
     res.json(todosEscaloes.rows);
   } catch (err) {
     console.error('Erro ao obter escalões:', err);
@@ -32,7 +32,7 @@ router.get('/all', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const escalao = await pool.query('SELECT * FROM Escalao WHERE id = $1', [id]);
+    const escalao = await pool.query('SELECT *, nome AS escalaoNome FROM Escalao WHERE id = $1', [id]);
     if (escalao.rows.length === 0) {
       return res.status(404).json({ error: 'Escalão não encontrado' });
     }
@@ -49,7 +49,7 @@ router.put('/update/:id', async (req, res) => {
     const { id } = req.params;
     const { nome } = req.body;
     const escalaoAtualizado = await pool.query(
-      'UPDATE Escalao SET nome = $1 WHERE id = $2 RETURNING *',
+      'UPDATE Escalao SET nome = $1 WHERE id = $2 RETURNING *, nome AS escalaoNome',
       [nome, id]
     );
     if (escalaoAtualizado.rows.length === 0) {
@@ -66,7 +66,7 @@ router.put('/update/:id', async (req, res) => {
 router.delete('/delete/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const escalaoExcluido = await pool.query('DELETE FROM Escalao WHERE id = $1 RETURNING *', [id]);
+    const escalaoExcluido = await pool.query('DELETE FROM Escalao WHERE id = $1 RETURNING *, nome AS escalaoNome', [id]);
     if (escalaoExcluido.rows.length === 0) {
       return res.status(404).json({ error: 'Escalão não encontrado' });
     }
