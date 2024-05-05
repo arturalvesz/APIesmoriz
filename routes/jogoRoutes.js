@@ -24,7 +24,7 @@ router.post('/novo', async (req, res) => {
 router.get('/all', async (req, res) => {
   try {
     const todosJogos = await pool.query("SELECT id, to_char(data, 'DD-MM-YYYY') AS data, to_char(hora, 'HH24:MI') AS hora, equipa_casa, escalao_id, resultado_casa, equipa_fora, resultado_fora FROM Jogo");
-    res.json({ jogo: todosJogos.rows });
+    res.json({ jogos: todosJogos.rows });
   } catch (err) {
     console.error('Erro ao obter jogos:', err);
     res.status(500).json({ error: 'Erro ao obter jogos' });
@@ -36,7 +36,7 @@ router.get('/all/:escalao_id', async (req, res) => {
   try {
     const { escalao_id } = req.params;
     const todosJogos = await pool.query("SELECT id, to_char(data, 'DD-MM-YYYY') AS data, to_char(hora, 'HH24:MI') AS hora, equipa_casa, escalao_id, resultado_casa, equipa_fora, resultado_fora FROM Jogo WHERE escalao_id = $1", [escalao_id]);
-    res.json({ jogo: todosJogos.rows });
+    res.json({ jogos: todosJogos.rows });
   } catch (err) {
     console.error('Erro ao obter jogos:', err);
     res.status(500).json({ error: 'Erro ao obter jogos' });
