@@ -5,14 +5,13 @@ const pool = require("../dbConfig");
 // Criar um novo jogo
 router.post("/novo", async (req, res) => {
   try {
-    const { data, hora, nome, escalao_id, resultado } = req.body;
-    // Parse a data no formato "dia-mes-ano" para "ano-mes-dia" (YYYY-MM-DD)
+    const { data, hora, equipa_casa, escalao_id, equipa_fora } = req.body;    // Parse a data no formato "dia-mes-ano" para "ano-mes-dia" (YYYY-MM-DD)
     const [dia, mes, ano] = data.split("-");
     const dataFormatada = `${ano}-${mes}-${dia}`;
 
     const novoJogo = await pool.query(
-      "INSERT INTO Jogo (data, hora, nome, escalao_id, resultado) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-      [dataFormatada, hora, nome, escalao_id, resultado]
+      "INSERT INTO jogo (data, hora, equipa_casa, escalao_id, equipa_fora) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+      [dataFormatada, hora, equipa_casa, escalao_id, equipa_fora]
     );
     res.json(novoJogo.rows[0]);
   } catch (err) {
@@ -79,11 +78,13 @@ router.get("/:id", async (req, res) => {
 router.put("/update/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { data, nome, escalao_id, resultado } = req.body;
+    const { data, hora, equipa_casa, escalao_id, equipa_fora } = req.body;
+
     const jogoAtualizado = await pool.query(
-      "UPDATE Jogo SET data = $1, nome = $2, escalao_id = $3, resultado = $4 WHERE id = $5 RETURNING *",
-      [data, nome, escalao_id, resultado, id]
+      "UPDATE jogo SET data = $1, hora = $2, equipa_casa = $3, escalao_id = $4, equipa_fora = $5 WHERE id = $6 RETURNING *",
+      [data, hora, equipa_casa, escalao_id, equipa_fora, id]
     );
+
     if (jogoAtualizado.rows.length === 0) {
       return res.status(404).json({ error: "Jogo não encontrado" });
     }
@@ -93,6 +94,7 @@ router.put("/update/:id", async (req, res) => {
     res.status(500).json({ error: "Erro ao atualizar jogo" });
   }
 });
+
 
 // Excluir um jogo
 router.delete("/delete/:id", async (req, res) => {
