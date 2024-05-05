@@ -55,6 +55,19 @@ router.post("/novo", async (req, res) => {
   }
 });
 
+router.get("/jogo/:jogo_id", async (req, res) => {
+  try {
+    const { jogo_id } = req.params;
+    const setsJogo = await pool.query("SELECT * FROM sets WHERE jogo_id = $1", [
+      jogo_id,
+    ]);
+    res.json(setsJogo.rows);
+  } catch (err) {
+    console.error("Erro ao obter sets do jogo:", err);
+    res.status(500).json({ error: "Erro ao obter sets do jogo" });
+  }
+});
+
 // Obter todas as entradas na tabela sets
 router.get("/all", async (req, res) => {
   try {
@@ -83,25 +96,25 @@ router.get("/:id", async (req, res) => {
 
 // Atualizar uma entrada específica na tabela sets
 // Rota para atualizar um conjunto de pontuações existente
-router.put('/update/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { jogo_id, numero_set, pontos_casa, pontos_fora } = req.body;
+router.put("/update/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { jogo_id, numero_set, pontos_casa, pontos_fora } = req.body;
 
-        // Atualiza o conjunto de pontuações na tabela sets
-        const entradaAtualizada = await pool.query(
-            'UPDATE sets SET jogo_id = $1, numero_set = $2, pontos_casa = $3, pontos_fora = $4 WHERE id = $5 RETURNING *',
-            [jogo_id, numero_set, pontos_casa, pontos_fora, id]
-        );
+    // Atualiza o conjunto de pontuações na tabela sets
+    const entradaAtualizada = await pool.query(
+      "UPDATE sets SET jogo_id = $1, numero_set = $2, pontos_casa = $3, pontos_fora = $4 WHERE id = $5 RETURNING *",
+      [jogo_id, numero_set, pontos_casa, pontos_fora, id]
+    );
 
-        // Atualiza os resultados do jogo
-        await atualizarResultadosJogo(jogo_id);
+    // Atualiza os resultados do jogo
+    await atualizarResultadosJogo(jogo_id);
 
-        res.json(entradaAtualizada.rows[0]);
-    } catch (err) {
-        console.error('Erro ao atualizar entrada:', err);
-        res.status(500).json({ error: 'Erro ao atualizar entrada' });
-    }
+    res.json(entradaAtualizada.rows[0]);
+  } catch (err) {
+    console.error("Erro ao atualizar entrada:", err);
+    res.status(500).json({ error: "Erro ao atualizar entrada" });
+  }
 });
 
 // Excluir uma entrada específica na tabela sets
