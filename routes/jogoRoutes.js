@@ -35,8 +35,19 @@ router.get('/all', async (req, res) => {
 router.get('/all/:escalao_id', async (req, res) => {
   try {
     const { escalao_id } = req.params;
+
+    // Consulta para obter o nome do escalão
+    const nomeEscalaoQuery = await pool.query("SELECT nome FROM Escalao WHERE id = $1", [escalao_id]);
+    const nomeEscalao = nomeEscalaoQuery.rows[0].nome;
+
+    // Consulta para obter todos os jogos do escalão
     const todosJogos = await pool.query("SELECT id, to_char(data, 'DD-MM-YYYY') AS data, to_char(hora, 'HH24:MI') AS hora, equipa_casa, escalao_id, resultado_casa, equipa_fora, resultado_fora FROM Jogo WHERE escalao_id = $1", [escalao_id]);
-    res.json({ jogos: todosJogos.rows });
+    
+    // Resposta JSON com os jogos e o nome do escalão
+    res.json({ 
+      escalao: nomeEscalao, 
+      jogos: todosJogos.rows 
+    });
   } catch (err) {
     console.error('Erro ao obter jogos:', err);
     res.status(500).json({ error: 'Erro ao obter jogos' });
