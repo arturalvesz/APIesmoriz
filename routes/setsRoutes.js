@@ -104,7 +104,6 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// Atualizar uma entrada específica na tabela sets
 // Rota para atualizar um conjunto de pontuações existente
 router.put("/update/:id", async (req, res) => {
     try {

@@ -5,13 +5,13 @@ const pool = require('../dbConfig');
 // Criar um novo jogo
 router.post('/novo', async (req, res) => {
   try {
-    const { data, hora, equipa_casa, escalao_id, equipa_fora } = req.body;    
+    const { data, hora, equipa_casa, escalao_id, equipa_fora, localizacao } = req.body;    
     const [dia, mes, ano] = data.split("-");
     const dataFormatada = `${ano}-${mes}-${dia}`;
 
     const novoJogo = await pool.query(
-      'INSERT INTO jogo (data, hora, equipa_casa, escalao_id, equipa_fora) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [dataFormatada, hora, equipa_casa, escalao_id, equipa_fora]
+      'INSERT INTO jogo (data, hora, equipa_casa, escalao_id, equipa_fora, localizacao) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+      [dataFormatada, hora, equipa_casa, escalao_id, equipa_fora, localizacao]
     );
     res.json({ jogo: novoJogo.rows[0] });
   } catch (err) {
@@ -23,7 +23,7 @@ router.post('/novo', async (req, res) => {
 // Obter todos os jogos
 router.get('/all', async (req, res) => {
   try {
-    const todosJogos = await pool.query("SELECT id, to_char(data, 'DD-MM-YYYY') AS data, to_char(hora, 'HH24:MI') AS hora, equipa_casa, escalao_id, resultado_casa, equipa_fora, resultado_fora FROM Jogo");
+    const todosJogos = await pool.query("SELECT id, to_char(data, 'DD-MM-YYYY') AS data, to_char(hora, 'HH24:MI') AS hora, equipa_casa, escalao_id, resultado_casa, equipa_fora, resultado_fora, localizacao FROM Jogo");
     res.json({ jogos: todosJogos.rows });
   } catch (err) {
     console.error('Erro ao obter jogos:', err);
@@ -41,7 +41,7 @@ router.get('/all/:escalao_id', async (req, res) => {
     const nomeEscalao = nomeEscalaoQuery.rows[0].nome;
 
     // Consulta para obter todos os jogos do escalão
-    const todosJogos = await pool.query("SELECT id, to_char(data, 'DD-MM-YYYY') AS data, to_char(hora, 'HH24:MI') AS hora, equipa_casa, escalao_id, resultado_casa, equipa_fora, resultado_fora FROM Jogo WHERE escalao_id = $1", [escalao_id]);
+    const todosJogos = await pool.query("SELECT id, to_char(data, 'DD-MM-YYYY') AS data, to_char(hora, 'HH24:MI') AS hora, equipa_casa, escalao_id, resultado_casa, equipa_fora, resultado_fora, localizacao FROM Jogo WHERE escalao_id = $1", [escalao_id]);
     
     // Resposta JSON com os jogos e o nome do escalão
     res.json({ 
@@ -58,7 +58,7 @@ router.get('/all/:escalao_id', async (req, res) => {
 router.get('/:escalao_id/:jogo_id', async (req, res) => {
   try {
     const { escalao_id, jogo_id } = req.params;
-    const jogo = await pool.query("SELECT id, to_char(data, 'DD-MM-YYYY') AS data, to_char(hora, 'HH24:MI') AS hora, equipa_casa, escalao_id, resultado_casa, equipa_fora, resultado_fora FROM Jogo WHERE escalao_id = $1 AND id = $2", [escalao_id, jogo_id]);
+    const jogo = await pool.query("SELECT id, to_char(data, 'DD-MM-YYYY') AS data, to_char(hora, 'HH24:MI') AS hora, equipa_casa, escalao_id, resultado_casa, equipa_fora, resultado_fora, localizacao FROM Jogo WHERE escalao_id = $1 AND id = $2", [escalao_id, jogo_id]);
     if (jogo.rows.length === 0) {
       res.status(404).json({ error: 'Jogo não encontrado' });
       return;
@@ -74,7 +74,7 @@ router.get('/:escalao_id/:jogo_id', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const jogo = await pool.query("SELECT id, to_char(data, 'DD-MM-YYYY') AS data, to_char(hora, 'HH24:MI') AS hora, equipa_casa, escalao_id, resultado_casa, equipa_fora, resultado_fora FROM Jogo WHERE id = $1", [id]);
+    const jogo = await pool.query("SELECT id, to_char(data, 'DD-MM-YYYY') AS data, to_char(hora, 'HH24:MI') AS hora, equipa_casa, escalao_id, resultado_casa, equipa_fora, resultado_fora, localizacao FROM Jogo WHERE id = $1", [id]);
     if (jogo.rows.length === 0) {
       return res.status(404).json({ error: 'Jogo não encontrado' });
     }
@@ -89,11 +89,11 @@ router.get('/:id', async (req, res) => {
 router.put('/update/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { data, hora, equipa_casa, escalao_id, equipa_fora } = req.body;
+    const { data, hora, equipa_casa, escalao_id, equipa_fora, localizacao } = req.body;
 
     const jogoAtualizado = await pool.query(
-      "UPDATE jogo SET data = $1, hora = $2, equipa_casa = $3, escalao_id = $4, equipa_fora = $5 WHERE id = $6 RETURNING *",
-      [data, hora, equipa_casa, escalao_id, equipa_fora, id]
+      "UPDATE jogo SET data = $1, hora = $2, equipa_casa = $3, escalao_id = $4, equipa_fora = $5, localizacao = $6 WHERE id = $7 RETURNING *",
+      [data, hora, equipa_casa, escalao_id, equipa_fora, localizacao, id]
     );
 
     if (jogoAtualizado.rows.length === 0) {
