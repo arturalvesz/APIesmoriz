@@ -37,7 +37,7 @@ router.get('/jogo/:jogo_id', async (req, res) => {
       if (bilhete.rows.length === 0) {
         return res.status(404).json({ error: 'Bilhete na bilheteira não encontrado para o jogo especificado' });
       }
-      res.json({ bilhete: bilhete.rows });
+      res.json({ bilhete: bilhete.rows[0] });
     } catch (err) {
       console.error('Erro ao obter bilhete na bilheteira para o jogo especificado:', err);
       res.status(500).json({ error: 'Erro ao obter bilhete na bilheteira para o jogo especificado' });
