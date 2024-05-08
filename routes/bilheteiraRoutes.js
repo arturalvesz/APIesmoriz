@@ -6,14 +6,14 @@ const pool = require("../dbConfig");
 router.post("/novo", async (req, res) => {
   try {
     const { nbilhetes, preco_normal, preco_socio, jogo_id } = req.body;
-    const novoBilhete = await pool.query(
+    const novaBilheteira = await pool.query(
       "INSERT INTO bilheteira (nbilhetes, preco_normal, preco_socio, jogo_id) VALUES ($1, $2, $3, $4) RETURNING *",
       [nbilhetes, preco_normal, preco_socio, jogo_id]
     );
-    res.json({ bilhete: novoBilhete.rows[0] });
+    res.json({ bilheteira: novaBilheteira.rows[0] });
   } catch (err) {
-    console.error("Erro ao criar bilhete na bilheteira:", err);
-    res.status(500).json({ error: "Erro ao criar bilhete na bilheteira" });
+    console.error("Erro ao criar bilheteira:", err);
+    res.status(500).json({ error: "Erro ao criar bilheteira" });
   }
 });
 
@@ -21,11 +21,11 @@ router.post("/novo", async (req, res) => {
 // Obter todos os bilhetes na bilheteira
 router.get("/all", async (req, res) => {
   try {
-    const todosBilhetes = await pool.query("SELECT * FROM bilheteira");
-    res.json({ bilhetes: todosBilhetes.rows });
+    const bilheteiras = await pool.query("SELECT * FROM bilheteira");
+    res.json({ bilheteira: bilheteiras.rows });
   } catch (err) {
-    console.error("Erro ao obter bilhetes da bilheteira:", err);
-    res.status(500).json({ error: "Erro ao obter bilhetes da bilheteira" });
+    console.error("Erro ao obter bilheteiras:", err);
+    res.status(500).json({ error: "Erro ao bilheteiras" });
   }
 });
 
@@ -33,14 +33,14 @@ router.get("/all", async (req, res) => {
 router.get('/jogo/:jogo_id', async (req, res) => {
     try {
       const { jogo_id } = req.params;
-      const bilhete = await pool.query('SELECT * FROM bilheteira WHERE jogo_id = $1', [jogo_id]);
-      if (bilhete.rows.length === 0) {
+      const bilheteira = await pool.query('SELECT * FROM bilheteira WHERE jogo_id = $1', [jogo_id]);
+      if (bilheteira.rows.length === 0) {
         return res.status(404).json({ error: 'Bilhete na bilheteira não encontrado para o jogo especificado' });
       }
-      res.json({ bilhete: bilhete.rows[0] });
+      res.json({ bilheteira: bilheteira.rows[0] });
     } catch (err) {
-      console.error('Erro ao obter bilhete na bilheteira para o jogo especificado:', err);
-      res.status(500).json({ error: 'Erro ao obter bilhete na bilheteira para o jogo especificado' });
+      console.error('Erro ao obter bilheteira para o jogo especificado:', err);
+      res.status(500).json({ error: 'Erro ao obter bilheteira para o jogo especificado' });
     }
   });
 
@@ -48,20 +48,20 @@ router.get('/jogo/:jogo_id', async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const bilhete = await pool.query("SELECT * FROM bilheteira WHERE id = $1", [
+    const bilheteira = await pool.query("SELECT * FROM bilheteira WHERE id = $1", [
       id,
     ]);
-    if (bilhete.rows.length === 0) {
+    if (bilheteira.rows.length === 0) {
       return res
         .status(404)
         .json({ error: "Bilhete na bilheteira não encontrado" });
     }
-    res.json({ bilhete: bilhete.rows[0] });
+    res.json({ bilheteira: bilheteira.rows[0] });
   } catch (err) {
-    console.error("Erro ao obter bilhete na bilheteira pelo ID:", err);
+    console.error("Erro ao obter bilheteira pelo ID:", err);
     res
       .status(500)
-      .json({ error: "Erro ao obter bilhete na bilheteira pelo ID" });
+      .json({ error: "Erro ao obter bilheteira pelo ID" });
   }
 });
 
@@ -70,16 +70,16 @@ router.put("/update/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { nbilhetes, preco_normal, preco_socio, jogo_id } = req.body;
-    const bilheteAtualizado = await pool.query(
+    const bilheteiraAtualizada = await pool.query(
       "UPDATE bilheteira SET nbilhetes = $1, preco_normal = $2, preco_socio = $3, jogo_id = $4 WHERE id = $5 RETURNING *",
       [nbilhetes, preco_normal, preco_socio, jogo_id, id]
     );
-    if (bilheteAtualizado.rows.length === 0) {
+    if (bilheteiraAtualizada.rows.length === 0) {
       return res
         .status(404)
         .json({ error: "Bilhete na bilheteira não encontrado" });
     }
-    res.json({ bilhete: bilheteAtualizado.rows[0] });
+    res.json({ bilheteira: bilheteiraAtualizada.rows[0] });
   } catch (err) {
     console.error("Erro ao atualizar bilhete na bilheteira:", err);
     res.status(500).json({ error: "Erro ao atualizar bilhete na bilheteira" });
@@ -90,19 +90,19 @@ router.put("/update/:id", async (req, res) => {
 router.delete("/delete/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const bilheteExcluido = await pool.query(
+    const bilheteiraExcluida = await pool.query(
       "DELETE FROM bilheteira WHERE id = $1 RETURNING *",
       [id]
     );
-    if (bilheteExcluido.rows.length === 0) {
+    if (bilheteiraExcluida.rows.length === 0) {
       return res
         .status(404)
-        .json({ error: "Bilhete na bilheteira não encontrado" });
+        .json({ error: "Bilheteira não encontrada" });
     }
-    res.json({ message: "Bilhete na bilheteira excluído com sucesso" });
+    res.json({ message: "Bilheteira excluído com sucesso" });
   } catch (err) {
-    console.error("Erro ao excluir bilhete na bilheteira:", err);
-    res.status(500).json({ error: "Erro ao excluir bilhete na bilheteira" });
+    console.error("Erro ao excluir bilheteira:", err);
+    res.status(500).json({ error: "Erro ao excluir bilheteira" });
   }
 });
 
