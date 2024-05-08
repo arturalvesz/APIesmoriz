@@ -16,6 +16,7 @@ const eventoRoutes = require('./routes/eventoRoutes');
 const patrocinadorRoutes = require('./routes/patrocinadorRoutes');
 const utilizadorRoutes = require('./routes/utilizadorRoutes');
 const bilheteiraRoutes = require('./routes/bilheteiraRoutes');
+const stripeRoutes = require('./routes/stripeRoutes');
 const auth = require('./routes/auth');
 
 
