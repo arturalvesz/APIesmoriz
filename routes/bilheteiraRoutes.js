@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../dbConfig");
 
-// Criar um novo bilhete na bilheteira
+// Criar uma nova entrada na bilheteira
 router.post("/novo", async (req, res) => {
   try {
     const { nbilhetes, preco_normal, preco_socio, jogo_id } = req.body;
