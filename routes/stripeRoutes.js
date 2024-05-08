@@ -43,3 +43,6 @@ router.post("/pagamento", async (req, res) => {
     res.status(500).json({ error: "Erro ao processar o pagamento" });
   }
 });
+
+
+module.exports = router;
