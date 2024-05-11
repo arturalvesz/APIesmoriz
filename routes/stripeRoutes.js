@@ -22,8 +22,8 @@ router.post("/create-checkout-session", async (req, res) => {
       },
     ],
     mode: "payment",
-    success_url: 'https://yourwebsite.com/success',
-    cancel_url: 'https://yourwebsite.com/cancel',
+    success_url: 'testes://testes.com/sucesso',
+    cancel_url: 'testes://testes.com/erro',
   });
   res.json({ id: session.id, url: session.url });
 });
