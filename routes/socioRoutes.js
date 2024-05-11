@@ -83,9 +83,9 @@ router.get('/verificar-socio/:userId', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM socio WHERE user_id = $1', [userId]);
     if (result.rows.length > 0) {
-      res.status(200).json({ hasSocio: true });
+      res.status(200).json({ isSocio: true });
     } else {
-      res.status(200).json({ hasSocio: false });
+      res.status(200).json({ isSocio: false });
     }
   } catch (error) {
     console.error('Erro ao verificar sócio:', error);

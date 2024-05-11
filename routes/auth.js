@@ -58,7 +58,7 @@ router.get('/get-user-id/:token', async (req, res) => {
     } catch (error) {
         console.error('Erro ao verificar o token:', error);
         res.status(400).json({ error: 'Token inválido ou expirado' });
-    }
+    }   
 });
 
 // Rota para login de usuário
