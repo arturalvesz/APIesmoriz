@@ -25,7 +25,7 @@ router.post("/create-checkout-session", async (req, res) => {
     success_url: 'https://yourwebsite.com/success',
     cancel_url: 'https://yourwebsite.com/cancel',
   });
-  res.json({ id: session.id });
+  res.json({ id: session.id, url: session.url });
 });
 
 module.exports = router;
