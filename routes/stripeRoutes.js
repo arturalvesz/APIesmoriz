@@ -30,9 +30,6 @@ router.post("/create-checkout-session", async (req, res) => {
       success_url: "https://www.esmorizgc.pt", // URL de sucesso personalizada
       cancel_url: "https://www.esmorizgc.pt", // URL de cancelamento personalizada
     });
-    
-    // Criar bilhetes
-    await criarBilhete(bilheteiraId, dataValidade, quantidade, dataCompra, utilizadorId);
 
     // Se desejar realizar mais ações, você pode fazer isso aqui antes de responder com o ID e URL da sessão
     res.json({ id: session.id, url: session.url });
@@ -40,6 +37,35 @@ router.post("/create-checkout-session", async (req, res) => {
     console.error("Erro ao criar sessão de checkout:", error);
     res.status(500).json({ error: "Falha ao criar sessão de checkout" });
   }
+});
+
+
+// Webhook endpoint para receber eventos do Stripe
+router.post("/webhook", async (req, res) => {
+  let event;
+  try {
+    event = req.body;
+  } catch (err) {
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  // Verificar se o evento é de pagamento bem-sucedido
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object;
+
+    // Obter detalhes do bilhete a partir dos metadados do Stripe
+    const { bilheteiraId, dataValidade, quantidade, utilizadorId } = session.metadata;
+
+    // Criar bilhetes no banco de dados
+    try {
+      await criarBilhete(bilheteiraId, dataValidade, quantidade, new Date(), utilizadorId);
+    } catch (error) {
+      console.error("Erro ao criar bilhetes:", error);
+      return res.status(500).end();
+    }
+  }
+
+  res.status(200).end();
 });
 
 // Função para criar um bilhete no banco de dados
