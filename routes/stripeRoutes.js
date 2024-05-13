@@ -48,7 +48,7 @@ async function criarBilhete(bilheteiraId, dataValidade, quantidade, dataCompra, 
   
   try {
     
-    const bilheteiraIdInt = partseInt(bilheteiraId);
+    const bilheteiraIdInt = parseInt(bilheteiraId);
     const utilizadorIdInt = parseInt(utilizadorId);
     
     const query = "INSERT INTO bilhete (bilheteira_id, data_validade, data_compra, utilizador_id) VALUES ($1, $2, $3, $4)";
