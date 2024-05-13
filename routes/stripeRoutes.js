@@ -6,23 +6,20 @@ require('dotenv').config();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 // Função para criar um bilhete no banco de dados
-async function criarBilhete(bilheteiraId, dataValidade, quantidade, dataCompra) {
+async function criarBilhete(bilheteiraId, dataValidade, quantidade, dataCompra, utilizadorId) {
   try {
-    const query = "INSERT INTO bilhete (bilheteira_id, data_validade, data_compra) VALUES ($1, $2, $3) RETURNING id";
-    const values = [bilheteiraId, dataValidade, dataCompra];
-    const bilheteIds = [];
+    const query = "INSERT INTO bilhete (bilheteira_id, data_validade, data_compra, utilizador_id) VALUES ($1, $2, $3, $4)";
+    const values = [bilheteiraId, dataValidade, dataCompra, utilizadorId];
     for (let i = 0; i < quantidade; i++) {
-      const { rows } = await pool.query(query, values);
-      bilheteIds.push(rows[0].id);
+      await pool.query(query, values);
     }
-    return bilheteIds;
   } catch (error) {
     throw error;
   }
 }
 
 router.post("/create-checkout-session", async (req, res) => {
-  const { nome, precoNormal, quantidade, bilheteiraId, dataValidade } = req.body;
+  const { nome, precoNormal, quantidade, bilheteiraId, dataValidade, utilizadorId } = req.body;
   const dataCompra = new Date(); // Obtém a data atual
 
   try {
@@ -47,7 +44,7 @@ router.post("/create-checkout-session", async (req, res) => {
     });
     
     // Criar bilhetes
-    const bilheteIds = await criarBilhete(bilheteiraId, dataValidade, quantidade, dataCompra);
+    await criarBilhete(bilheteiraId, dataValidade, quantidade, dataCompra, utilizadorId);
 
     // Se desejar realizar mais ações, você pode fazer isso aqui antes de responder com o ID e URL da sessão
     res.json({ id: session.id, url: session.url });
