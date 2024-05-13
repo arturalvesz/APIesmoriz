@@ -22,30 +22,11 @@ router.post("/create-checkout-session", async (req, res) => {
       },
     ],
     mode: "payment",
+    success_url: "https://checkout.stripe.com/success",
+    cancel_url: "https://checkout.stripe.com/cancel",
   });
   res.json({ id: session.id, url: session.url });
 });
 
-router.post("/handle-payment", async (req, res) => {
-  const { sessionId } = req.body;
-
-  try {
-    // Retrieve the session to check the payment status
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
-    const paymentStatus = session.payment_status;
-    
-    // Assuming you have some logic to determine the payment status
-    if (paymentStatus === "paid") {
-      // Payment was successful
-      res.json({ success: true, message: "Payment successful" });
-    } else {
-      // Payment status is not "paid", return null
-      res.json({ success: null, message: "Payment status not determined" });
-    }
-  } catch (error) {
-    console.error("Error handling payment:", error);
-    res.status(500).json({ error: "Failed to handle payment" });
-  }
-});
 
 module.exports = router;
