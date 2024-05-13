@@ -1,19 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../dbConfig");
-require("dotenv").config();
+require('dotenv').config();
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
+
 router.post("/create-checkout-session", async (req, res) => {
-  const {
-    nome,
-    precoNormal,
-    quantidade,
-    bilheteiraId,
-    dataValidade,
-    utilizadorId,
-  } = req.body;
+  const { nome, precoNormal, quantidade, bilheteiraId, dataValidade, utilizadorId } = req.body;
   const dataCompra = new Date(); // Obtém a data atual
 
   try {
@@ -45,28 +39,26 @@ router.post("/create-checkout-session", async (req, res) => {
   }
 });
 
-// Webhook endpoint para receber eventos do Stripe
+
 router.post("/webhook", async (req, res) => {
   const { sessionId, quantidade, bilheteiraId, dataValidade, utilizadorId } = req.body;
-  // Criar bilhetes no banco de dados
+
   try {
     const session = await stripe.checkout.sessions.retrieve(sessionId);
 
-    // Verificar se o status do pagamento é "completed" (concluído)
-    if (session && session.payment_status === "paid") {
+    // Verificar se existe um payment_intent e se o status do pagamento está "succeeded"
+    if (session.payment_intent && session.payment_status_transitions.paid) {
       // Criar bilhetes no banco de dados
       try {
-        await criarBilhete(
-          bilheteiraId,
-          dataValidade,
-          quantidade,
-          new Date(),
-          utilizadorId
-        );
+        await criarBilhete(bilheteiraId, dataValidade, quantidade, new Date(), utilizadorId);
+        console.log("Bilhetes criados com sucesso.");
       } catch (error) {
         console.error("Erro ao criar bilhetes:", error);
         return res.status(500).end();
       }
+    } else {
+      console.error("O pagamento não foi bem-sucedido.");
+      return res.status(400).end();
     }
   } catch (error) {
     console.error("Erro ao obter detalhes da sessão:", error);
@@ -75,21 +67,16 @@ router.post("/webhook", async (req, res) => {
 
   res.status(200).end();
 });
-
 // Função para criar um bilhete no banco de dados
-async function criarBilhete(
-  bilheteiraId,
-  dataValidade,
-  quantidade,
-  dataCompra,
-  utilizadorId
-) {
+async function criarBilhete(bilheteiraId, dataValidade, quantidade, dataCompra, utilizadorId) {
+  
+  
   try {
+    
     const bilheteiraIdInt = parseInt(bilheteiraId);
     const utilizadorIdInt = parseInt(utilizadorId);
-
-    const query =
-      "INSERT INTO bilhete (bilheteira_id, data_validade, data_compra, utilizador_id) VALUES ($1, $2, $3, $4)";
+    
+    const query = "INSERT INTO bilhete (bilheteira_id, data_validade, data_compra, utilizador_id) VALUES ($1, $2, $3, $4)";
     const values = [bilheteiraIdInt, dataValidade, dataCompra, utilizadorIdInt];
     for (let i = 0; i < quantidade; i++) {
       await pool.query(query, values);
@@ -98,5 +85,6 @@ async function criarBilhete(
     throw error;
   }
 }
+
 
 module.exports = router;
