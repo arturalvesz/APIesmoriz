@@ -6,10 +6,10 @@ require('dotenv').config();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 // Função para criar um bilhete no banco de dados
-async function criarBilhete(bilheteiraId, dataValidade, quantidade) {
+async function criarBilhete(bilheteiraId, dataValidade, quantidade, dataCompra) {
   try {
-    const query = "INSERT INTO bilhete (bilheteira_id, data_validade) VALUES ($1, $2) RETURNING id";
-    const values = [bilheteiraId, dataValidade];
+    const query = "INSERT INTO bilhete (bilheteira_id, data_validade, data_compra) VALUES ($1, $2, $3) RETURNING id";
+    const values = [bilheteiraId, dataValidade, dataCompra];
     const bilheteIds = [];
     for (let i = 0; i < quantidade; i++) {
       const { rows } = await pool.query(query, values);
@@ -21,19 +21,9 @@ async function criarBilhete(bilheteiraId, dataValidade, quantidade) {
   }
 }
 
-// Função para criar uma entrada na tabela compra_bilhete
-async function criarCompraBilhete(bilheteIds, utilizadorId) {
-  try {
-    const query = "INSERT INTO compra_bilhete (bilhete_id, utilizador_id) VALUES ($1, $2)";
-    const values = bilheteIds.map(bilheteId => [bilheteId, utilizadorId]);
-    await Promise.all(values.map(value => pool.query(query, value)));
-  } catch (error) {
-    throw error;
-  }
-}
-
 router.post("/create-checkout-session", async (req, res) => {
-  const { nome, precoNormal, quantidade, bilheteiraId, utilizadorId, dataValidade } = req.body;
+  const { nome, precoNormal, quantidade, bilheteiraId, dataValidade } = req.body;
+  const dataCompra = new Date(); // Obtém a data atual
 
   try {
     // Crie a sessão de checkout no Stripe
@@ -57,9 +47,7 @@ router.post("/create-checkout-session", async (req, res) => {
     });
     
     // Criar bilhetes
-    const bilheteIds = await criarBilhete(bilheteiraId, dataValidade, quantidade);
-    // Criar uma entrada na tabela 'compra_bilhete'
-    await criarCompraBilhete(bilheteIds, utilizadorId);
+    const bilheteIds = await criarBilhete(bilheteiraId, dataValidade, quantidade, dataCompra);
 
     // Se desejar realizar mais ações, você pode fazer isso aqui antes de responder com o ID e URL da sessão
     res.json({ id: session.id, url: session.url });
@@ -68,4 +56,5 @@ router.post("/create-checkout-session", async (req, res) => {
     res.status(500).json({ error: "Falha ao criar sessão de checkout" });
   }
 });
+
 module.exports = router;
