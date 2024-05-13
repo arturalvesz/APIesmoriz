@@ -47,7 +47,7 @@ router.post("/webhook", async (req, res) => {
     const session = await stripe.checkout.sessions.retrieve(sessionId);
 
     // Verificar se existe um payment_intent e se o status do pagamento está "succeeded"
-    if (session.payment_intent && session.payment_status_transitions.paid) {
+    if (session && session.payment_status == 'paid') {
       // Criar bilhetes no banco de dados
       try {
         await criarBilhete(bilheteiraId, dataValidade, quantidade, new Date(), utilizadorId);
