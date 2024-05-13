@@ -31,10 +31,15 @@ router.post("/create-checkout-session", async (req, res) => {
 router.post("/handle-payment", async (req, res) => {
   const { sessionId } = req.body;
 
+  await new Promise(resolve => setTimeout(resolve, 2000)); // 2000 milliseconds = 2 seconds
+
+
   try {
     // Retrieve the session to check the payment status
     const session = await stripe.checkout.sessions.retrieve(sessionId);
     const paymentStatus = session.payment_status;
+
+
     
     // Assuming you have some logic to determine the payment status
     if (paymentStatus === "paid") {
