@@ -46,18 +46,28 @@ router.post("/webhook", async (req, res) => {
   try {
     const session = await stripe.checkout.sessions.retrieve(sessionId);
 
-    // Verificar se existe um payment_intent e se o status do pagamento está "succeeded"
-    if (session && session.payment_status == 'paid') {
-      // Criar bilhetes no banco de dados
-      try {
-        await criarBilhete(bilheteiraId, dataValidade, quantidade, new Date(), utilizadorId);
-        console.log("Bilhetes criados com sucesso.");
-      } catch (error) {
-        console.error("Erro ao criar bilhetes:", error);
-        return res.status(500).end();
+    // Verificar se a sessão existe
+    if (session) {
+      console.log("Detalhes da sessão:", session);
+
+      // Verificar se o status do pagamento é "paid"
+      if (session.payment_status === "paid") {
+        console.log("O pagamento foi bem-sucedido.");
+
+        // Criar bilhetes no banco de dados
+        try {
+          await criarBilhete(bilheteiraId, dataValidade, quantidade, new Date(), utilizadorId);
+          console.log("Bilhetes criados com sucesso.");
+        } catch (error) {
+          console.error("Erro ao criar bilhetes:", error);
+          return res.status(500).end();
+        }
+      } else {
+        console.error("O pagamento não foi bem-sucedido. Status:", session.payment_status);
+        return res.status(400).end();
       }
     } else {
-      console.error("O pagamento não foi bem-sucedido.");
+      console.error("Sessão não encontrada.");
       return res.status(400).end();
     }
   } catch (error) {
