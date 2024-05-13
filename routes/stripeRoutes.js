@@ -34,13 +34,21 @@ router.post("/handle-payment", async (req, res) => {
   try {
     // Retrieve the session to check the payment status
     const session = await stripe.checkout.sessions.retrieve(sessionId);
-    const paymentStatus = session.payment_status;
+
+    // Retrieve the payment intent associated with the session
+    const paymentIntent = await stripe.paymentIntents.retrieve(
+      session.payment_intent
+    );
+
+    // Check the status of the payment intent to determine the payment status
+    const paymentStatus = paymentIntent.status;
+
     // Assuming you have some logic to determine the payment status
-    if (paymentStatus === "paid") {
+    if (paymentStatus === "succeeded") {
       // Payment was successful
       res.json({ success: true, message: "Payment successful" });
     } else {
-      // Payment status is not "paid", return null
+      // Payment status is not "succeeded", return null
       res.json({ success: null, message: "Payment status not determined" });
     }
   } catch (error) {
