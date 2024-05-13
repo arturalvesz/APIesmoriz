@@ -31,7 +31,7 @@ router.post("/create-checkout-session", async (req, res) => {
 router.post("/handle-payment", async (req, res) => {
   const { sessionId } = req.body;
 
-  await new Promise(resolve => setTimeout(resolve, 2000)); // 2000 milliseconds = 2 seconds
+  await new Promise(resolve => setTimeout(resolve, 10000)); // 2000 milliseconds = 2 seconds
 
 
   try {
