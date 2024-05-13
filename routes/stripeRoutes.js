@@ -28,9 +28,9 @@ router.post("/create-checkout-session", async (req, res) => {
   res.json({ id: session.id, url: session.url });
 });
 
-router.get("/handle-payment/:sessionId", async (req, res) => {
+router.post("/handle-payment", async (req, res) => {
+  const { sessionId } = req.body;
 
-  const { sessionId } = req.params;
   try {
     // Retrieve the session to check the payment status
     const session = await stripe.checkout.sessions.retrieve(sessionId);
@@ -42,7 +42,7 @@ router.get("/handle-payment/:sessionId", async (req, res) => {
       res.json({ success: true, message: "Payment successful" });
     } else {
       // Payment status is not "paid", return null
-      res.json({ success: false, message: "Payment status not determined" });
+      res.json({ success: null, message: "Payment status not determined" });
     }
   } catch (error) {
     console.error("Error handling payment:", error);
