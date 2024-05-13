@@ -29,7 +29,7 @@ router.get("/all", async (req, res) => {
   }
 });
 
-// Obter um único bilhete na bilheteira para um determinado jogo pelo ID do jogo
+// Obter uma bilheteira para um determinado jogo pelo ID do jogo
 router.get('/jogo/:jogo_id', async (req, res) => {
     try {
       const { jogo_id } = req.params;
@@ -44,7 +44,7 @@ router.get('/jogo/:jogo_id', async (req, res) => {
     }
   });
 
-// Obter um único bilhete na bilheteira pelo ID
+// Obter bilheteira pelo ID
 router.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -86,7 +86,7 @@ router.put("/update/:id", async (req, res) => {
   }
 });
 
-// Excluir um bilhete na bilheteira
+// Excluir uma bilheteira
 router.delete("/delete/:id", async (req, res) => {
   try {
     const { id } = req.params;

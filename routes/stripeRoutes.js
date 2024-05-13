@@ -5,18 +5,6 @@ require('dotenv').config();
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
-// Função para criar um bilhete no banco de dados
-async function criarBilhete(bilheteiraId, dataValidade, quantidade, dataCompra, utilizadorId) {
-  try {
-    const query = "INSERT INTO bilhete (bilheteira_id, data_validade, data_compra, utilizador_id) VALUES ($1, $2, $3, $4)";
-    const values = [bilheteiraId, dataValidade, dataCompra, utilizadorId];
-    for (let i = 0; i < quantidade; i++) {
-      await pool.query(query, values);
-    }
-  } catch (error) {
-    throw error;
-  }
-}
 
 router.post("/create-checkout-session", async (req, res) => {
   const { nome, precoNormal, quantidade, bilheteiraId, dataValidade, utilizadorId } = req.body;
@@ -53,5 +41,25 @@ router.post("/create-checkout-session", async (req, res) => {
     res.status(500).json({ error: "Falha ao criar sessão de checkout" });
   }
 });
+
+// Função para criar um bilhete no banco de dados
+async function criarBilhete(bilheteiraId, dataValidade, quantidade, dataCompra, utilizadorId) {
+  
+  
+  try {
+    
+    const bilheteiraIdInt = partseInt(bilheteiraId);
+    const utilizadorIdInt = parseInt(utilizadorId);
+    
+    const query = "INSERT INTO bilhete (bilheteira_id, data_validade, data_compra, utilizador_id) VALUES ($1, $2, $3, $4)";
+    const values = [bilheteiraIdInt, dataValidade, dataCompra, utilizadorIdInt];
+    for (let i = 0; i < quantidade; i++) {
+      await pool.query(query, values);
+    }
+  } catch (error) {
+    throw error;
+  }
+}
+
 
 module.exports = router;
