@@ -44,6 +44,10 @@ router.post("/create-checkout-session", async (req, res) => {
 
 router.post("/webhook", express.json(), async (req, res) => {
   // Parse the JSON body
+
+  console.log("Payload recebido:", req.body);
+
+
   const payload = req.body;
 
   // Extract the signature from the header
