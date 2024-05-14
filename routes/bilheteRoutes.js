@@ -21,14 +21,24 @@ router.get("/utilizador/:id/:escalaoId", async (req, res) => {
   try {
     const { id, escalaoId } = req.params;
 
-    // Consulta para obter os bilhetes do utilizador
-    const bilhetes = await pool.query("SELECT * FROM bilhete WHERE utilizador_id = $1", [id]);
+    // Consulta para obter os bilhetes do utilizador, formatando as datas conforme necessário
+    const bilhetesResult = await pool.query(`
+      SELECT
+        id,
+        bilheteira_id,
+        TO_CHAR(data_compra, 'DD-MM-YYYY') AS data_compra,
+        TO_CHAR(data_validade, 'DD-MM-YYYY') AS data_validade,
+        utilizador_id
+      FROM bilhete
+      WHERE utilizador_id = $1
+    `, [id]);
+    const bilhetes = bilhetesResult.rows;
 
     // Array para armazenar os bilhetes com o escalão correspondente
     const bilhetesComEscalao = [];
 
     // Itera sobre os bilhetes para encontrar os bilhetes do escalão correspondente
-    for (const bilhete of bilhetes.rows) {
+    for (const bilhete of bilhetes) {
       // Obtém o ID da bilheteira do bilhete
       const bilheteiraId = bilhete.bilheteira_id;
 
@@ -36,12 +46,18 @@ router.get("/utilizador/:id/:escalaoId", async (req, res) => {
       const jogoIdResult = await pool.query("SELECT jogo_id FROM bilheteira WHERE id = $1", [bilheteiraId]);
       const jogoId = jogoIdResult.rows[0].jogo_id;
 
+      // Consulta para obter o jogo (incluindo equipa_casa e equipa_fora) a partir do ID do jogo
+      const jogoResult = await pool.query("SELECT equipa_casa, equipa_fora FROM jogo WHERE id = $1", [jogoId]);
+      const jogo = jogoResult.rows[0];
+
       // Consulta para obter o escalão a partir do ID do jogo
       const escalaoResult = await pool.query("SELECT escalao_id FROM jogo WHERE id = $1", [jogoId]);
       const jogoEscalaoId = escalaoResult.rows[0].escalao_id;
 
       // Se o escalão do jogo corresponder ao escalão desejado, adiciona o bilhete ao array
       if (jogoEscalaoId === parseInt(escalaoId)) {
+        bilhete.equipa_casa = jogo.equipa_casa;
+        bilhete.equipa_fora = jogo.equipa_fora;
         bilhetesComEscalao.push(bilhete);
       }
     }
