@@ -65,12 +65,15 @@ async function criarBilhete(bilheteiraId, dataValidade, quantidade, dataCompra, 
     
     const pdfs = [];
 
-     const { rows: bilheteiraRows } = await pool.query("SELECT equipa_casa, equipa_fora FROM bilheteira WHERE id = $1", [bilheteiraIdInt]);
-     const { rows: utilizadorRows } = await pool.query("SELECT email FROM utilizador WHERE id = $1", [utilizadorIdInt]);
-     const equipaCasa = bilheteiraRows[0].equipa_casa;
-     const equipaFora = bilheteiraRows[0].equipa_fora;
-     const userEmail = utilizadorRows[0].email;
-     const nomeJogo = equipaCasa + " vs " + equipaFora;
+    const { rows: bilheteiraRows } = await pool.query("SELECT equipa_casa, equipa_fora FROM bilheteira WHERE id = $1", [bilheteiraIdInt]);
+    const { rows: utilizadorRows } = await pool.query("SELECT email FROM utilizador WHERE id = $1", [utilizadorIdInt]);
+    const jogoId = bilheteiraRows[0].jogo_id;
+
+    const { rows: jogoRows } = await pool.query("SELECT equipa_casa, equipa_fora FROM jogo WHERE id = $1", [jogoId]);
+    const equipaCasa = jogoRows[0].equipa_casa;
+    const equipaFora = jogoRows[0].equipa_fora; 
+    const userEmail = utilizadorRows[0].email;
+    const nomeJogo = equipaCasa + " vs " + equipaFora;
     
     for (let i = 0; i < quantidade; i++) {
       const { rows } = await pool.query(query, values);
