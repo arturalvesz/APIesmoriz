@@ -27,22 +27,21 @@ router.get("/utilizador/:id/:escalaoId", async (req, res) => {
     // Array para armazenar os bilhetes com o escalão correspondente
     const bilhetesComEscalao = [];
 
-    // Itera sobre os bilhetes para encontrar o escalão correspondente
+    // Itera sobre os bilhetes para encontrar os bilhetes do escalão correspondente
     for (const bilhete of bilhetes.rows) {
-      // Obtém o ID da bilheteira
-      const  bilheteira_id  = await pool.query("SELECT bilheteira_id FROM bilhete WHERE id = $1", [bilhete]);
-      
+      // Obtém o ID da bilheteira do bilhete
+      const bilheteiraId = bilhete.bilheteira_id;
+
       // Consulta para obter o ID do jogo a partir da bilheteira
-      const jogoId = await pool.query("SELECT jogo_id FROM bilheteira WHERE id = $1", [bilheteira_id]);
-      
-      // Obtém o ID do jogo
-      const { jogo_id } = jogoId.rows[0];
-      
+      const jogoIdResult = await pool.query("SELECT jogo_id FROM bilheteira WHERE id = $1", [bilheteiraId]);
+      const jogoId = jogoIdResult.rows[0].jogo_id;
+
       // Consulta para obter o escalão a partir do ID do jogo
-      const escalao = await pool.query("SELECT escalao_id FROM jogo WHERE id = $1", [jogo_id]);
-      
-      // Se o escalão corresponder ao escalão desejado, adiciona o bilhete ao array
-      if (escalao.rows[0].escalao_id === escalaoId) {
+      const escalaoResult = await pool.query("SELECT escalao_id FROM jogo WHERE id = $1", [jogoId]);
+      const jogoEscalaoId = escalaoResult.rows[0].escalao_id;
+
+      // Se o escalão do jogo corresponder ao escalão desejado, adiciona o bilhete ao array
+      if (jogoEscalaoId === parseInt(escalaoId)) {
         bilhetesComEscalao.push(bilhete);
       }
     }
