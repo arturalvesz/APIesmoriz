@@ -42,7 +42,10 @@ router.post("/create-checkout-session", async (req, res) => {
   }
 });
 
-router.post("/webhook", express.raw({ type: 'application/json' }), async (req, res) => {
+router.use('/webhook', express.raw({ type: 'application/json' }));
+
+
+router.post("/webhook", async (req, res) => {
   // Exibir o payload recebido
   console.log("Payload recebido:", req.body);
 
