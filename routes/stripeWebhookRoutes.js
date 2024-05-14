@@ -23,8 +23,6 @@ router.post("/webhook", async (req, res) => {
 
     if (event.type === 'checkout.session.completed') {
        // Chama a função para criar os bilhetes na base de dados
-       const { quantidade, bilheteiraId, dataValidade, utilizadorId } = req.body;
-
       await criarBilhete(bilheteiraId, dataValidade, quantidade, new Date(), utilizadorId);
 
       console.log("Bilhetes criados com sucesso.");
