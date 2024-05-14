@@ -62,113 +62,13 @@ async function criarBilhete(bilheteiraId, dataValidade, quantidade, dataCompra, 
     const utilizadorIdInt = parseInt(utilizadorId);
     const query = "INSERT INTO bilhete (bilheteira_id, data_validade, data_compra, utilizador_id) VALUES ($1, $2, $3, $4) RETURNING id";
     const values = [bilheteiraIdInt, dataValidade, dataCompra, utilizadorIdInt];
-    
-    const pdfs = [];
-
-    const { rows: bilheteiraRows } = await pool.query("SELECT jogo_id FROM bilheteira WHERE id = $1", [bilheteiraIdInt]);
-    const { rows: utilizadorRows } = await pool.query("SELECT email FROM utilizador WHERE id = $1", [utilizadorIdInt]);
-    const jogoId = bilheteiraRows[0].jogo_id;
-
-    const { rows: jogoRows } = await pool.query("SELECT equipa_casa, equipa_fora FROM jogo WHERE id = $1", [jogoId]);
-    const equipaCasa = jogoRows[0].equipa_casa;
-    const equipaFora = jogoRows[0].equipa_fora; 
-    const userEmail = utilizadorRows[0].email;
-    const nomeJogo = equipaCasa + " vs " + equipaFora;
-    
     for (let i = 0; i < quantidade; i++) {
-      const { rows } = await pool.query(query, values);
-      const bilheteId = rows[0].id;
-
-      const pdfDoc = await generatePDF(nomeJogo,userEmail,bilheteId,dataValidade)
-
-      pdfs.push(pdfDoc);
+      await pool.query(query, values);
     }
-
-    await enviarEmail(pdfs, "arturalvesz77@gmail.com");
   } catch (error) {
     throw error;
   }
 }
 
-
-
-async function enviarEmail(pdfs, userEmail) {
-  try {
-    // Configurar o transporte de e-mail
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: 'arturalvesz77@gmail.com',
-        pass: 'nnnv fyes kglk egyt'
-      }
-    });
-
-    // Configurar o e-mail
-    const mailOptions = {
-      from: 'arturalvesz77@gmail.com',
-      to: userEmail,
-      subject: 'Bilhetes do jogo',
-      text: 'Aqui estão os seus bilhetes do jogo',
-      attachments: pdfs.map((pdf, index) => ({
-        filename: `bilhete_${index + 1}.pdf`,
-        content: pdf,
-        encoding: 'base64'
-      }))
-    };
-
-    // Enviar o e-mail
-    const info = await transporter.sendMail(mailOptions);
-    console.log('E-mail enviado:', info.response);
-  } catch (error) {
-    throw error;
-  }
-}
-async function generatePDF(nomeJogo, userEmail, idBilhete, dataJogo) {
-
-  const imageBytes = fs.readFileSync('./public/images/Logo_EGC.png');
-
-  const pdfDoc = await pdfLib.PDFDocument.create();
-  const page = pdfDoc.addPage();
-  const { width, height } = page.getSize();
-  const fontSize = 20;
-  const textX = 50;
-  let textY = height - 50;
-
-  page.drawText(`Jogo: ${nomeJogo}`, {
-    x: textX,
-    y: textY,
-    size: fontSize,
-  });
-  textY -= 30;
-  page.drawText(`Email: ${userEmail}`, {
-    x: textX,
-    y: textY,
-    size: fontSize,
-  });
-  textY -= 30;
-  page.drawText(`ID do Bilhete: ${idBilhete}`, {
-    x: textX,
-    y: textY,
-    size: fontSize,
-  });
-  textY -= 30;
-  page.drawText(`Data do Jogo: ${dataJogo}`, {
-    x: textX,
-    y: textY,
-    size: fontSize,
-  });
-  textY -= 30;
-
-
-   // Adicionar a imagem à página PDF
-   const image = await pdfDoc.embedPng(imageBytes);
-   page.drawImage(image, {
-     x: 50,
-     y: 50,
-     width: 100, // Largura da imagem
-     height: 100, // Altura da imagem
-   });
-  return pdfDoc;
-}
 
 module.exports = router;
