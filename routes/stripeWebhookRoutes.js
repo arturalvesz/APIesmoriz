@@ -7,7 +7,7 @@ const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 
 router.post("/webhook", async (req, res) => {
   // Exibir o payload recebido
-  console.log("Payload recebido:", req.body);
+  console.log("Payload recebido:", req.body.toString());
 
   // Extract the signature from the header
   const sig = req.headers['stripe-signature'];
@@ -25,6 +25,8 @@ router.post("/webhook", async (req, res) => {
     if (event.type === 'checkout.session.completed') {
       const { id: sessionId, quantidade, bilheteiraId, dataValidade, utilizadorId } = session;
 
+      console.log("Detalhes da sessão:", session); // Exibir todos os detalhes da sessão
+
       console.log("Simulando a criação de ingressos:", sessionId, quantidade, bilheteiraId, dataValidade, utilizadorId);
 
       // Envia uma resposta de sucesso
@@ -38,7 +40,6 @@ router.post("/webhook", async (req, res) => {
     res.status(400).send(`Erro do Webhook: ${error.message}`);
   }
 });
-
 
 // Função para criar um bilhete
 async function criarBilhete(bilheteiraId, dataValidade, quantidade, dataCompra, utilizadorId) {
