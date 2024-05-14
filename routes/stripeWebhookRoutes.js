@@ -21,11 +21,18 @@ router.post("/webhook", async (req, res) => {
       expand: ['line_items'],
     });
 
+    const paymentIntentId = event.data.object.payment_intent;
+
+    const paymentIntent = await stripe.paymentIntents.retrieve(
+      paymentIntentId
+    );
+
     if (event.type === 'checkout.session.completed') {
       const lineItems = session.line_items.data;
 
-      const metadata = event.data.object.payment_intent.metadata;
-      const { bilheteiraId, dataValidade, utilizadorId } = metadata;
+      const bilheteiraId = paymentIntent.metadata.bilheteiraId;
+      const dataValidade = paymentIntent.metadata.dataValidade;
+      const utilizadorId = paymentIntent.metadata.utilizadorId;
       // Chama a função para criar os bilhetes na base de dados
       await criarBilhete(bilheteiraId, dataValidade, lineItems.item.quantity, new Date(), utilizadorId);
       console.log("Bilhetes criados com sucesso.");
