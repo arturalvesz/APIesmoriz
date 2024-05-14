@@ -42,8 +42,6 @@ router.post("/create-checkout-session", async (req, res) => {
   }
 });
 
-router.use('/webhook', express.raw({ type: 'application/json' }));
-
 
 router.post("/webhook", async (req, res) => {
   // Exibir o payload recebido
