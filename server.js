@@ -21,7 +21,11 @@ const stripeWebhookRoutes = require('./routes/stripeWebhookRoutes');
 const auth = require('./routes/auth');
 
 
+app.use('/api/stripe-webhook', express.raw({ type: 'application/json' }), stripeWebhookRoutes);
+
+
 app.use(express.json())
+
 app.use('/api/atletas', atletaRoutes);
 app.use('/api/escaloes', escalaoRoutes);
 app.use('/api/fotos', fotoRoutes);
@@ -34,7 +38,7 @@ app.use('/api/sets', setsRoutes);
 app.use('/api/bilheteira', bilheteiraRoutes),
 app.use('/api/stripe', stripeRoutes),
 app.use('/api/auth', auth);
-app.use('/api/stripe-webhook', stripeWebhookRoutes);
+
 
 
 app.listen(PORT, () => {

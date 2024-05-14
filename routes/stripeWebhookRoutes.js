@@ -7,7 +7,7 @@ const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 
 router.post("/webhook", async (req, res) => {
   // Exibir o payload recebido
-  console.log("Payload recebido:", req.rawBody);
+  console.log("Payload recebido:", req.body);
 
   // Extract the signature from the header
   const sig = req.headers['stripe-signature'];
