@@ -5,12 +5,9 @@ const pool = require("../dbConfig");
 
 const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 
-// Middleware para tratar o corpo da solicitação como raw
-router.use(express.raw({ type: "*/*" }));
-
-router.post("/", async (req, res) => {
+router.post("/webhook", async (req, res) => {
   // Exibir o payload recebido
-  console.log("Payload recebido:", req.body);
+  console.log("Payload recebido:", req.rawBody);
 
   // Extract the signature from the header
   const sig = req.headers['stripe-signature'];
@@ -18,7 +15,7 @@ router.post("/", async (req, res) => {
   // Verificar a assinatura usando a chave secreta do Stripe
   try {
     const event = stripe.webhooks.constructEvent(
-      req.body, sig, process.env.STRIPE_WEBHOOK_SECRET
+      req.rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET
     );
     console.log("Evento do webhook:", event);
 
@@ -41,6 +38,7 @@ router.post("/", async (req, res) => {
     res.status(400).send(`Erro do Webhook: ${error.message}`);
   }
 });
+
 
 // Função para criar um bilhete
 async function criarBilhete(bilheteiraId, dataValidade, quantidade, dataCompra, utilizadorId) {
