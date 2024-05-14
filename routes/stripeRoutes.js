@@ -42,44 +42,40 @@ router.post("/create-checkout-session", async (req, res) => {
   }
 });
 
-router.post("/webhook", express.json(), async (req, res) => {
-  // Parse the JSON body
-
+router.post("/webhook", express.raw({ type: 'application/json' }), async (req, res) => {
+  // Exibir o payload recebido
   console.log("Payload recebido:", req.body);
-
-
-  const payload = req.body;
 
   // Extract the signature from the header
   const sig = req.headers['stripe-signature'];
 
-  // Verify the signature using Stripe secret
+  // Verificar a assinatura usando a chave secreta do Stripe
   try {
     const event = stripe.webhooks.constructEvent(
-      JSON.stringify(payload), sig, WEBHOOK_SECRET
+      req.body, sig, process.env.STRIPE_WEBHOOK_SECRET
     );
-    console.log("Webhook event:", event);
+    console.log("Evento do webhook:", event);
 
-    // Extract session data from the event
+    // Extraia os dados da sessão do evento
     const session = event.data.object;
 
-    // Check if the event type is 'checkout.session.completed'
+    // Verifique se o tipo de evento é 'checkout.session.completed'
     if (event.type === 'checkout.session.completed') {
       const { id: sessionId, quantidade, bilheteiraId, dataValidade, utilizadorId } = session;
 
-      // Simulate creating tickets (replace with actual database interaction)
-      console.log("Simulating ticket creation:", sessionId, quantidade, bilheteiraId, dataValidade, utilizadorId);
+      // Simule a criação de ingressos (substitua por uma interação real com o banco de dados)
+      console.log("Simulando a criação de ingressos:", sessionId, quantidade, bilheteiraId, dataValidade, utilizadorId);
 
-      // Send a success response
+      // Envie uma resposta de sucesso
       res.status(200).send();
     } else {
-      // Handle other event types (optional)
-      console.log("Unhandled event type:", event.type);
-      res.status(200).send(); // You might want to handle other events differently
+      // Lide com outros tipos de evento (opcional)
+      console.log("Tipo de evento não tratado:", event.type);
+      res.status(200).send(); // Você pode querer lidar com outros eventos de forma diferente
     }
   } catch (error) {
-    console.error("Webhook verification error:", error);
-    res.status(400).send(`Webhook Error: ${error.message}`);
+    console.error("Erro de verificação do webhook:", error);
+    res.status(400).send(`Erro do Webhook: ${error.message}`);
   }
 });
 
