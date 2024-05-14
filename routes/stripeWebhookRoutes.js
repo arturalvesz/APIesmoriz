@@ -65,7 +65,7 @@ async function criarBilhete(bilheteiraId, dataValidade, quantidade, dataCompra, 
     
     const pdfs = [];
 
-    const { rows: bilheteiraRows } = await pool.query("SELECT equipa_casa, equipa_fora FROM bilheteira WHERE id = $1", [bilheteiraIdInt]);
+    const { rows: bilheteiraRows } = await pool.query("SELECT jogo_id FROM bilheteira WHERE id = $1", [bilheteiraIdInt]);
     const { rows: utilizadorRows } = await pool.query("SELECT email FROM utilizador WHERE id = $1", [utilizadorIdInt]);
     const jogoId = bilheteiraRows[0].jogo_id;
 
