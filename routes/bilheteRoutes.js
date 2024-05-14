@@ -17,17 +17,42 @@ router.post("/novo", async (req, res) => {
   }
 });
 
-// Obter todos os bilhetes associados a um determinado usuário
-router.get("/utilizador/:id", async (req, res) => {
-    try {
-      const { id } = req.params;
-      const bilhetes = await pool.query("SELECT * FROM bilhete WHERE utilizador_id = $1", [id]);
-      res.json({ bilhetes: bilhetes.rows });
-    } catch (err) {
-      console.error("Erro ao obter bilhetes do utilizador:", err);
-      res.status(500).json({ error: "Erro ao obter bilhetes do utilizador" });
+router.get("/utilizador/:id/:escalaoId", async (req, res) => {
+  try {
+    const { id, escalaoId } = req.params;
+
+    // Consulta para obter os bilhetes do utilizador
+    const bilhetes = await pool.query("SELECT * FROM bilhete WHERE utilizador_id = $1", [id]);
+
+    // Array para armazenar os bilhetes com o escalão correspondente
+    const bilhetesComEscalao = [];
+
+    // Itera sobre os bilhetes para encontrar o escalão correspondente
+    for (const bilhete of bilhetes.rows) {
+      // Obtém o ID da bilheteira
+      const { bilheteira_id } = bilhete;
+      
+      // Consulta para obter o ID do jogo a partir da bilheteira
+      const jogoId = await pool.query("SELECT jogo_id FROM bilheteira WHERE id = $1", [bilheteira_id]);
+      
+      // Obtém o ID do jogo
+      const { jogo_id } = jogoId.rows[0];
+      
+      // Consulta para obter o escalão a partir do ID do jogo
+      const escalao = await pool.query("SELECT escalao_id FROM jogo WHERE id = $1", [jogo_id]);
+      
+      // Se o escalão corresponder ao escalão desejado, adiciona o bilhete ao array
+      if (escalao.rows[0].escalao_id === escalaoId) {
+        bilhetesComEscalao.push(bilhete);
+      }
     }
-  });
+
+    res.json({ bilhetes: bilhetesComEscalao });
+  } catch (err) {
+    console.error("Erro ao obter bilhetes do utilizador:", err);
+    res.status(500).json({ error: "Erro ao obter bilhetes do utilizador" });
+  }
+});
 
 // Obter todos os bilhetes
 router.get("/all", async (req, res) => {
