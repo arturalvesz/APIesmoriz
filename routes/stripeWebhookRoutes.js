@@ -6,10 +6,9 @@ const pool = require("../dbConfig");
 const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 
 router.post("/webhook", async (req, res) => {
-  // Exibir o payload recebido
-  console.log("Payload recebido:", req.body.toString());
-
-  // Extract the signature from the header
+  
+  
+  // Extrair a signature do stripe do header
   const sig = req.headers['stripe-signature'];
 
   // Verificar a assinatura usando a chave secreta do Stripe
@@ -21,13 +20,13 @@ router.post("/webhook", async (req, res) => {
 
     const session = event.data.object;
 
-    // Verifica se o tipo de evento é 'checkout.session.completed'
     if (event.type === 'checkout.session.completed') {
-      const { id: sessionId, quantidade, bilheteiraId, dataValidade, utilizadorId } = session;
+      const { quantidade, bilheteiraId, dataValidade, utilizadorId } = session;
 
-      console.log("Detalhes da sessão:", session); // Exibir todos os detalhes da sessão
+       // Chama a função para criar os bilhetes na base de dados
+      await criarBilhete(bilheteiraId, dataValidade, quantidade, new Date(), utilizadorId);
 
-      console.log("Simulando a criação de ingressos:", sessionId, quantidade, bilheteiraId, dataValidade, utilizadorId);
+      console.log("Bilhetes criados com sucesso.");
 
       // Envia uma resposta de sucesso
       res.status(200).send();
