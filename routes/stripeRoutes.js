@@ -43,6 +43,10 @@ router.post("/create-checkout-session", async (req, res) => {
 router.post("/webhook", async (req, res) => {
   const { sessionId, quantidade, bilheteiraId, dataValidade, utilizadorId } = req.body;
 
+
+
+
+setTimeout(async () => {
   try {
     const session = await stripe.checkout.sessions.retrieve(sessionId);
 
@@ -76,6 +80,7 @@ router.post("/webhook", async (req, res) => {
   }
 
   res.status(200).end();
+}, 30000);
 });
 // Função para criar um bilhete no banco de dados
 async function criarBilhete(bilheteiraId, dataValidade, quantidade, dataCompra, utilizadorId) {
