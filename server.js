@@ -17,16 +17,11 @@ const patrocinadorRoutes = require('./routes/patrocinadorRoutes');
 const utilizadorRoutes = require('./routes/utilizadorRoutes');
 const bilheteiraRoutes = require('./routes/bilheteiraRoutes');
 const stripeRoutes = require('./routes/stripeRoutes');
+const stripeWebhookRoutes = require('./routes/stripeWebhookRoutes');
 const auth = require('./routes/auth');
 
 
-app.use((req, res, next) => {
-    if (req.originalUrl === "/api/stripe/webhook") {
-        next(); // Do nothing with the body because I need it in a raw state.
-    } else {
-        express.json()(req, res, next); // ONLY do express.json() if the received request is NOT a WebHook from Stripe.
-    }
-});
+
 app.use('/api/atletas', atletaRoutes);
 app.use('/api/escaloes', escalaoRoutes);
 app.use('/api/fotos', fotoRoutes);
@@ -39,7 +34,8 @@ app.use('/api/sets', setsRoutes);
 app.use('/api/bilheteira', bilheteiraRoutes),
 app.use('/api/stripe', stripeRoutes),
 app.use('/api/auth', auth);
-
+app.use('/api/stripe-webhook', stripeWebhookRoutes);
+app.use(express.json())
 
 app.listen(PORT, () => {
     console.log(`Servidor está ouvindo na porta ${PORT}`);
