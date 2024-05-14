@@ -42,7 +42,7 @@ router.post("/create-checkout-session", async (req, res) => {
 
 router.post("/webhook",express.raw({type: 'application/json' }), async (req, res) => {
   // Parse the JSON body
-  const rawPayload = req.body;
+  const rawPayload = req.rawBody;
 
   // Extract the signature from the header
   const sig = req.headers['stripe-signature'];
