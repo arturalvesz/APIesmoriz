@@ -32,10 +32,12 @@ router.post("/create-checkout-session", async (req, res) => {
       success_url: "https://www.esmorizgc.pt",
       cancel_url: "https://www.esmorizgc.pt", 
 
-      metadata: {
-        bilheteiraId: bilheteiraId,
-        dataValidade: dataValidade,
-        utilizadorId: utilizadorId,
+      payment_intent_data: {
+        metadata: {
+          bilheteiraId: bilheteiraId,
+          dataValidade: dataValidade,
+          utilizadorId: utilizadorId,
+        },
       },
     });
 

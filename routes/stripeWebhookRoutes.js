@@ -7,8 +7,6 @@ const axios = require('axios');
 const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 
 router.post("/webhook", async (req, res) => {
-  
-  
   // Extrair a signature do stripe do header
   const sig = req.headers['stripe-signature'];
 
@@ -19,30 +17,18 @@ router.post("/webhook", async (req, res) => {
     );
     console.log("Evento do webhook:", event);
 
-    const session = event.data.object;
+    const session = await stripe.checkout.sessions.retrieve(event.data.object.id, {
+      expand: ['line_items'],
+    });
 
     if (event.type === 'checkout.session.completed') {
+      const lineItems = session.line_items.data;
 
-      console.log("Preço Normal:",  event.data.object.line_items[0].price_data.unit_amount / 100);
-      console.log("Quantidade:", event.data.object.line_items[0].quantity);
-      console.log("ID da Bilheteira:", event.data.object.metadata.bilheteiraId);
-      console.log("Data de Validade:",event.data.object.metadata.dataValidade);
-      console.log("ID do Utilizador:", event.data.object.metadata.utilizadorId);
-
-    const precoNormal = event.data.object.line_items[0].price_data.unit_amount / 100;
-    const quantidade = event.data.object.line_items[0].quantity;
-    const bilheteiraId = event.data.object.metadata.bilheteiraId; // Assuming you've stored bilheteiraId in metadata
-    const dataValidade = event.data.object.metadata.dataValidade; // Assuming you've stored dataValidade in metadata
-    const utilizadorId = event.data.object.metadata.utilizadorId; // Assuming you've stored utilizadorId in metadata
-
-
-
-    
-       // Chama a função para criar os bilhetes na base de dados
-      await criarBilhete(bilheteiraId, dataValidade, quantidade, new Date(), utilizadorId);
-
+      const metadata = event.data.object.payment_intent.metadata;
+      const { bilheteiraId, dataValidade, utilizadorId } = metadata;
+      // Chama a função para criar os bilhetes na base de dados
+      await criarBilhete(bilheteiraId, dataValidade, lineItems.item.quantity, new Date(), utilizadorId);
       console.log("Bilhetes criados com sucesso.");
-
       // Envia uma resposta de sucesso
       res.status(200).send();
     } else {
@@ -54,6 +40,7 @@ router.post("/webhook", async (req, res) => {
     res.status(400).send(`Erro do Webhook: ${error.message}`);
   }
 });
+
 
 // Função para criar um bilhete
 async function criarBilhete(bilheteiraId, dataValidade, quantidade, dataCompra, utilizadorId) {
