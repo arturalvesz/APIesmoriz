@@ -8,7 +8,7 @@ require('dotenv').config();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 router.post("/create-checkout-session", async (req, res) => {
-  const { nome, precoNormal, quantidade, bilheteiraId, dataValidade, utilizadorId } = req.body;
+  const {precoNormal, quantidade, bilheteiraId, dataValidade, utilizadorId } = req.body;
 
   try {
     // Crie a sessão de checkout no Stripe
@@ -19,7 +19,7 @@ router.post("/create-checkout-session", async (req, res) => {
           price_data: {
             currency: "eur",
             product_data: {
-              name: nome,
+              name: "Jogo",
             },
             unit_amount: precoNormal * 100,
           },
