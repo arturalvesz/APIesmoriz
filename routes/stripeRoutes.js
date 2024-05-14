@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../dbConfig");
+const bodyParser = require('body-parser');
+
 require('dotenv').config();
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
@@ -40,34 +42,35 @@ router.post("/create-checkout-session", async (req, res) => {
   }
 });
 
-router.post("/webhook",express.raw({type: 'application/json' }), async (req, res) => {
+router.post("/webhook", express.json(), async (req, res) => {
   // Parse the JSON body
-  const rawPayload = req.rawBody;
+  const payload = req.body;
 
   // Extract the signature from the header
   const sig = req.headers['stripe-signature'];
 
   // Verify the signature using Stripe secret
   try {
-    const verification = await stripe.webhooks.constructEvent(
-      rawPayload, sig, WEBHOOK_SECRET
+    const event = stripe.webhooks.constructEvent(
+      JSON.stringify(payload), sig, WEBHOOK_SECRET
     );
-    console.log("Webhook verification:", verification);
+    console.log("Webhook event:", event);
 
-    const session = verification.data.object;
+    // Extract session data from the event
+    const session = event.data.object;
 
     // Check if the event type is 'checkout.session.completed'
-    if (verification.data.type === 'checkout.session.completed') {
+    if (event.type === 'checkout.session.completed') {
       const { id: sessionId, quantidade, bilheteiraId, dataValidade, utilizadorId } = session;
 
       // Simulate creating tickets (replace with actual database interaction)
-    console.log("Simulating ticket creation:", sessionId, quantidade, bilheteiraId, dataValidade, utilizadorId);
+      console.log("Simulating ticket creation:", sessionId, quantidade, bilheteiraId, dataValidade, utilizadorId);
 
       // Send a success response
       res.status(200).send();
     } else {
       // Handle other event types (optional)
-      console.log("Unhandled event type:", verification.data.type);
+      console.log("Unhandled event type:", event.type);
       res.status(200).send(); // You might want to handle other events differently
     }
   } catch (error) {
@@ -75,6 +78,7 @@ router.post("/webhook",express.raw({type: 'application/json' }), async (req, res
     res.status(400).send(`Webhook Error: ${error.message}`);
   }
 });
+
 
 
 /*router.post("/webhook", async (req, res) => {
