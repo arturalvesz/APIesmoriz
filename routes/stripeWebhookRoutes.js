@@ -15,7 +15,7 @@ router.post("/webhook", async (req, res) => {
   // Verificar a assinatura usando a chave secreta do Stripe
   try {
     const event = stripe.webhooks.constructEvent(
-      req.rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET
+      req.body, sig, process.env.STRIPE_WEBHOOK_SECRET
     );
     console.log("Evento do webhook:", event);
 
