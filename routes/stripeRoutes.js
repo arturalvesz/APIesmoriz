@@ -29,23 +29,15 @@ router.post("/create-checkout-session", async (req, res) => {
         },
       ],
       mode: "payment",
-      success_url: "https://www.esmorizgc.pt", // URL de sucesso personalizada
-      cancel_url: "https://www.esmorizgc.pt", // URL de cancelamento personalizada
+      success_url: "https://www.esmorizgc.pt",
+      cancel_url: "https://www.esmorizgc.pt", 
+
+      metadata: {
+        bilheteiraId: bilheteiraId,
+        dataValidade: dataValidade,
+        utilizadorId: utilizadorId,
+      },
     });
-
-     // Envie os dados necessários para o webhook
-     const webhookData = {
-      quantidade: quantidade,
-      bilheteiraId: bilheteiraId,
-      dataValidade: dataValidade,
-      utilizadorId: utilizadorId
-    };
-
-    // Envie os dados para o webhook
-    // Substitua a URL do webhook pela URL real do seu webhook
-    const webhookUrl = "https://apiesmoriz.onrender.com/api/stripe-webhook/webhook";
-    await axios.post(webhookUrl, webhookData);
-
 
     res.json({ id: session.id, url: session.url });
   } catch (error) {
