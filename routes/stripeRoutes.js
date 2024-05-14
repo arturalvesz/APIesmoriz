@@ -6,9 +6,10 @@ require('dotenv').config();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 
+const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
+
 router.post("/create-checkout-session", async (req, res) => {
   const { nome, precoNormal, quantidade, bilheteiraId, dataValidade, utilizadorId } = req.body;
-  const dataCompra = new Date(); // Obtém a data atual
 
   try {
     // Crie a sessão de checkout no Stripe
@@ -39,13 +40,46 @@ router.post("/create-checkout-session", async (req, res) => {
   }
 });
 
+router.post("/webhook", asyncHandler(async (req, res) => {
+  // Parse the JSON body
+  const rawPayload = req.body;
 
-router.post("/webhook", async (req, res) => {
+  // Extract the signature from the header
+  const sig = req.headers['stripe-signature'];
+
+  // Verify the signature using Stripe secret
+  try {
+    const verification = await stripe.webhooks.constructEvent(
+      rawPayload, sig, process.env.STRIPE_WEBHOOK_SECRET
+    );
+    console.log("Webhook verification:", verification);
+
+    const session = verification.data.object;
+
+    // Check if the event type is 'checkout.session.completed'
+    if (verification.data.type === 'checkout.session.completed') {
+      const { id: sessionId, quantidade, bilheteiraId, dataValidade, utilizadorId } = session;
+
+      // Simulate creating tickets (replace with actual database interaction)
+     console.log("Simulating ticket creation:", sessionId, quantidade, bilheteiraId, dataValidade, utilizadorId);
+
+      // Send a success response
+      res.status(200).send();
+    } else {
+      // Handle other event types (optional)
+      console.log("Unhandled event type:", verification.data.type);
+      res.status(200).send(); // You might want to handle other events differently
+    }
+  } catch (error) {
+    console.error("Webhook verification error:", error);
+    res.status(400).send(`Webhook Error: ${error.message}`);
+  }
+}));
+
+
+/*router.post("/webhook", async (req, res) => {
   const { sessionId, quantidade, bilheteiraId, dataValidade, utilizadorId } = req.body;
-
-
-
-
+  
 setTimeout(async () => {
   try {
     const session = await stripe.checkout.sessions.retrieve(sessionId);
@@ -81,11 +115,10 @@ setTimeout(async () => {
 
   res.status(200).end();
 }, 30000);
-});
+});*/
 // Função para criar um bilhete no banco de dados
 async function criarBilhete(bilheteiraId, dataValidade, quantidade, dataCompra, utilizadorId) {
-  
-  
+
   try {
     
     const bilheteiraIdInt = parseInt(bilheteiraId);
