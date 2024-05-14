@@ -31,7 +31,6 @@ router.post("/create-checkout-session", async (req, res) => {
       cancel_url: "https://www.esmorizgc.pt", // URL de cancelamento personalizada
     });
 
-    // Se desejar realizar mais ações, você pode fazer isso aqui antes de responder com o ID e URL da sessão
     res.json({ id: session.id, url: session.url });
   } catch (error) {
     console.error("Erro ao criar sessão de checkout:", error);

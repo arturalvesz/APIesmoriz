@@ -22,22 +22,19 @@ router.post("/", async (req, res) => {
     );
     console.log("Evento do webhook:", event);
 
-    // Extraia os dados da sessão do evento
     const session = event.data.object;
 
-    // Verifique se o tipo de evento é 'checkout.session.completed'
+    // Verifica se o tipo de evento é 'checkout.session.completed'
     if (event.type === 'checkout.session.completed') {
       const { id: sessionId, quantidade, bilheteiraId, dataValidade, utilizadorId } = session;
 
-      // Simule a criação de ingressos (substitua por uma interação real com o banco de dados)
       console.log("Simulando a criação de ingressos:", sessionId, quantidade, bilheteiraId, dataValidade, utilizadorId);
 
-      // Envie uma resposta de sucesso
+      // Envia uma resposta de sucesso
       res.status(200).send();
     } else {
-      // Lide com outros tipos de evento (opcional)
       console.log("Tipo de evento não tratado:", event.type);
-      res.status(200).send(); // Você pode querer lidar com outros eventos de forma diferente
+      res.status(200).send();
     }
   } catch (error) {
     console.error("Erro de verificação do webhook:", error);
@@ -45,7 +42,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-// Função para criar um bilhete no banco de dados
+// Função para criar um bilhete
 async function criarBilhete(bilheteiraId, dataValidade, quantidade, dataCompra, utilizadorId) {
   try {
     const bilheteiraIdInt = parseInt(bilheteiraId);
