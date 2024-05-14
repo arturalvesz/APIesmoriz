@@ -40,7 +40,7 @@ router.post("/create-checkout-session", async (req, res) => {
   }
 });
 
-router.post("/webhook", async (req, res) => {
+router.post("/webhook",express.raw({type: 'application/json' }), async (req, res) => {
   // Parse the JSON body
   const rawPayload = req.body;
 
@@ -50,7 +50,7 @@ router.post("/webhook", async (req, res) => {
   // Verify the signature using Stripe secret
   try {
     const verification = await stripe.webhooks.constructEvent(
-      rawPayload, sig, process.env.STRIPE_WEBHOOK_SECRET
+      rawPayload, sig, WEBHOOK_SECRET
     );
     console.log("Webhook verification:", verification);
 
@@ -61,7 +61,7 @@ router.post("/webhook", async (req, res) => {
       const { id: sessionId, quantidade, bilheteiraId, dataValidade, utilizadorId } = session;
 
       // Simulate creating tickets (replace with actual database interaction)
-     console.log("Simulating ticket creation:", sessionId, quantidade, bilheteiraId, dataValidade, utilizadorId);
+    console.log("Simulating ticket creation:", sessionId, quantidade, bilheteiraId, dataValidade, utilizadorId);
 
       // Send a success response
       res.status(200).send();
