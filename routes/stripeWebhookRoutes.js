@@ -30,11 +30,20 @@ router.post("/webhook", async (req, res) => {
     if (event.type === 'checkout.session.completed') {
       const lineItems = session.line_items.data;
 
+      // Inicializa a quantidade total como 0
+      let quantidadeTotal = 0;
+
+      // Itera sobre os itens da linha para calcular a quantidade total
+      lineItems.forEach(item => {
+        quantidadeTotal += item.quantity;
+      });
+
+
       const bilheteiraId = paymentIntent.metadata.bilheteiraId;
       const dataValidade = paymentIntent.metadata.dataValidade;
       const utilizadorId = paymentIntent.metadata.utilizadorId;
       // Chama a função para criar os bilhetes na base de dados
-      await criarBilhete(bilheteiraId, dataValidade, lineItems.item.quantity, new Date(), utilizadorId);
+      await criarBilhete(bilheteiraId, dataValidade, quantidadeTotal, new Date(), utilizadorId);
       console.log("Bilhetes criados com sucesso.");
       // Envia uma resposta de sucesso
       res.status(200).send();
