@@ -23,11 +23,19 @@ router.post("/webhook", async (req, res) => {
 
     if (event.type === 'checkout.session.completed') {
 
+      console.log("Preço Normal:",  event.data.object.line_items[0].price_data.unit_amount / 100);
+      console.log("Quantidade:", event.data.object.line_items[0].quantity);
+      console.log("ID da Bilheteira:", event.data.object.metadata.bilheteiraId);
+      console.log("Data de Validade:",event.data.object.metadata.dataValidade);
+      console.log("ID do Utilizador:", event.data.object.metadata.utilizadorId);
+
     const precoNormal = event.data.object.line_items[0].price_data.unit_amount / 100;
     const quantidade = event.data.object.line_items[0].quantity;
     const bilheteiraId = event.data.object.metadata.bilheteiraId; // Assuming you've stored bilheteiraId in metadata
     const dataValidade = event.data.object.metadata.dataValidade; // Assuming you've stored dataValidade in metadata
     const utilizadorId = event.data.object.metadata.utilizadorId; // Assuming you've stored utilizadorId in metadata
+
+
 
     
        // Chama a função para criar os bilhetes na base de dados
