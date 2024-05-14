@@ -28,7 +28,8 @@ router.get("/utilizador/:id/:escalaoId", async (req, res) => {
         bilheteira_id,
         TO_CHAR(data_compra, 'DD-MM-YYYY') AS data_compra,
         TO_CHAR(data_validade, 'DD-MM-YYYY') AS data_validade,
-        utilizador_id
+        utilizador_id,
+        validado
       FROM bilhete
       WHERE utilizador_id = $1
     `, [id]);
