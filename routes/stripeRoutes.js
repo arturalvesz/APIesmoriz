@@ -40,7 +40,7 @@ router.post("/create-checkout-session", async (req, res) => {
   }
 });
 
-router.post("/webhook", asyncHandler(async (req, res) => {
+router.post("/webhook", async (req, res) => {
   // Parse the JSON body
   const rawPayload = req.body;
 
@@ -74,7 +74,7 @@ router.post("/webhook", asyncHandler(async (req, res) => {
     console.error("Webhook verification error:", error);
     res.status(400).send(`Webhook Error: ${error.message}`);
   }
-}));
+});
 
 
 /*router.post("/webhook", async (req, res) => {
