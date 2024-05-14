@@ -21,7 +21,7 @@ const auth = require('./routes/auth');
 
 
 app.use((req, res, next) => {
-    if (req.originalUrl === "/api/payment/webhook") {
+    if (req.originalUrl === "/api/stripe/webhook") {
         next(); // Do nothing with the body because I need it in a raw state.
     } else {
         express.json()(req, res, next); // ONLY do express.json() if the received request is NOT a WebHook from Stripe.
