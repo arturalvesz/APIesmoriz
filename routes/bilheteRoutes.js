@@ -30,7 +30,7 @@ router.get("/utilizador/:id/:escalaoId", async (req, res) => {
     // Itera sobre os bilhetes para encontrar o escalão correspondente
     for (const bilhete of bilhetes.rows) {
       // Obtém o ID da bilheteira
-      const { bilheteira_id } = bilhete;
+      const  bilheteira_id  = await pool.query("SELECT bilheteira_id FROM bilhete WHERE id = $1", [bilhete]);
       
       // Consulta para obter o ID do jogo a partir da bilheteira
       const jogoId = await pool.query("SELECT jogo_id FROM bilheteira WHERE id = $1", [bilheteira_id]);
