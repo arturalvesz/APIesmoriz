@@ -53,17 +53,68 @@ router.put('/update/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { nome, email, password } = req.body;
-    const utilizadorAtualizado = await pool.query(
-      'UPDATE utilizador SET nome = $1, email = $2, password = $3 WHERE id = $4 RETURNING *',
-      [nome, email, password, id]
-    );
+
+    let updateQuery = 'UPDATE utilizador SET';
+    let queryParams = [];
+    let paramCount = 1;
+
+    if (nome) {
+      updateQuery += ` nome = $${paramCount},`;
+      queryParams.push(nome);
+      paramCount++;
+    }
+
+    if (email) {
+      updateQuery += ` email = $${paramCount},`;
+      queryParams.push(email);
+      paramCount++;
+    }
+
+    if (password) {
+      updateQuery += ` password = $${paramCount},`;
+      queryParams.push(password);
+      paramCount++;
+    }
+
+    // Remove a vírgula extra do final e adiciona a cláusula WHERE
+    updateQuery = updateQuery.slice(0, -1) + ` WHERE id = $${paramCount} RETURNING *`;
+    queryParams.push(id);
+
+    const utilizadorAtualizado = await pool.query(updateQuery, queryParams);
+
     if (utilizadorAtualizado.rows.length === 0) {
       return res.status(404).json({ error: 'Utilizador não encontrado' });
     }
+
     res.json(utilizadorAtualizado.rows[0]);
   } catch (err) {
     console.error('Erro ao atualizar utilizador:', err);
     res.status(500).json({ error: 'Erro ao atualizar utilizador' });
+  }
+});
+
+router.put('/update-password/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { password } = req.body;
+
+    if (!password) {
+      return res.status(400).json({ error: 'A nova senha não foi fornecida' });
+    }
+
+    const utilizadorAtualizado = await pool.query(
+      'UPDATE utilizador SET password = $1 WHERE id = $2 RETURNING *',
+      [password, id]
+    );
+
+    if (utilizadorAtualizado.rows.length === 0) {
+      return res.status(404).json({ error: 'Utilizador não encontrado' });
+    }
+
+    res.json(utilizadorAtualizado.rows[0]);
+  } catch (err) {
+    console.error('Erro ao atualizar senha do utilizador:', err);
+    res.status(500).json({ error: 'Erro ao atualizar senha do utilizador' });
   }
 });
 
