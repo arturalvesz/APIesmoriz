@@ -52,7 +52,12 @@ router.get('/:id', async (req, res) => {
 router.put('/update/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { nome, email} = req.body;
+    const { nome, email, password, confirmPassword } = req.body;
+
+    // Verificar se a nova senha e a confirmação de senha correspondem
+    if (password !== confirmPassword) {
+      return res.status(400).json({ error: 'A nova senha e a confirmação de senha não correspondem' });
+    }
 
     let updateQuery = 'UPDATE utilizador SET';
     let queryParams = [];
@@ -67,6 +72,12 @@ router.put('/update/:id', async (req, res) => {
     if (email) {
       updateQuery += ` email = $${paramCount},`;
       queryParams.push(email);
+      paramCount++;
+    }
+
+    if (password) {
+      updateQuery += ` password = $${paramCount},`;
+      queryParams.push(password);
       paramCount++;
     }
 
@@ -87,30 +98,8 @@ router.put('/update/:id', async (req, res) => {
   }
 });
 
-router.put('/update-password/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { password } = req.body;
 
-    if (!password) {
-      return res.status(400).json({ error: 'A nova senha não foi fornecida' });
-    }
 
-    const utilizadorAtualizado = await pool.query(
-      'UPDATE utilizador SET password = $1 WHERE id = $2 RETURNING *',
-      [password, id]
-    );
-
-    if (utilizadorAtualizado.rows.length === 0) {
-      return res.status(404).json({ error: 'Utilizador não encontrado' });
-    }
-
-    res.json(utilizadorAtualizado.rows[0]);
-  } catch (err) {
-    console.error('Erro ao atualizar senha do utilizador:', err);
-    res.status(500).json({ error: 'Erro ao atualizar senha do utilizador' });
-  }
-});
 
 // Excluir um utilizador
 router.delete('/delete/:id', async (req, res) => {
