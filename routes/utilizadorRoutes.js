@@ -52,7 +52,7 @@ router.get('/:id', async (req, res) => {
 router.put('/update/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { nome, email, password } = req.body;
+    const { nome, email} = req.body;
 
     let updateQuery = 'UPDATE utilizador SET';
     let queryParams = [];
@@ -67,12 +67,6 @@ router.put('/update/:id', async (req, res) => {
     if (email) {
       updateQuery += ` email = $${paramCount},`;
       queryParams.push(email);
-      paramCount++;
-    }
-
-    if (password) {
-      updateQuery += ` password = $${paramCount},`;
-      queryParams.push(password);
       paramCount++;
     }
 
