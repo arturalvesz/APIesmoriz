@@ -68,7 +68,7 @@ router.get('/:escalao_id/:jogo_id', async (req, res) => {
     const { data, hora } = jogo.rows[0];
 
     // Convertendo a data e hora do jogo para um objeto Date
-    const [dia, mes, ano] = data.split('-').map(Number);
+    const [dia, mes, ano] = data.toString().split('-').map(Number);
     const [horaJogo, minutoJogo] = hora.split(':').map(Number);
     const dataHoraJogo = new Date(ano, mes - 1, dia, horaJogo, minutoJogo);
 
@@ -82,7 +82,7 @@ router.get('/:escalao_id/:jogo_id', async (req, res) => {
     if (jogoTerminado) {
       statusJogo = "Encerrado";
     } else if (jogoJaOcorreu) {
-      statusJogo = "Encerrado"; // Jogo que já ocorreu é considerado encerrado
+      statusJogo = "Em Andamento"; // Jogo que já ocorreu é considerado encerrado
     } else {
       statusJogo = "Agendado";
     }
