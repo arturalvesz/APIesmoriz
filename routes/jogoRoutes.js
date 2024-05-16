@@ -23,7 +23,7 @@ router.post('/novo', async (req, res) => {
 // Obter todos os jogos
 router.get('/all', async (req, res) => {
   try {
-    const todosJogos = await pool.query("SELECT id, to_char(data, 'DD-MM-YYYY') AS data, to_char(hora, 'HH24:MI') AS hora, equipa_casa, escalao_id, resultado_casa, equipa_fora, resultado_fora, localizacao, competicao FROM Jogo");
+    const todosJogos = await pool.query("SELECT id, to_char(data, 'DD-MM-YYYY') AS data, to_char(hora, 'HH24:MI') AS hora, equipa_casa, escalao_id, resultado_casa, equipa_fora, resultado_fora, localizacao, competicao, jogo_acabou FROM Jogo");
     res.json({ jogos: todosJogos.rows });
   } catch (err) {
     console.error('Erro ao obter jogos:', err);
@@ -41,7 +41,7 @@ router.get('/all/:escalao_id', async (req, res) => {
     const nomeEscalao = nomeEscalaoQuery.rows[0].nome;
 
     // Consulta para obter todos os jogos do escalão
-    const todosJogos = await pool.query("SELECT id, to_char(data, 'DD-MM-YYYY') AS data, to_char(hora, 'HH24:MI') AS hora, equipa_casa, escalao_id, resultado_casa, equipa_fora, resultado_fora, localizacao, competicao FROM Jogo WHERE escalao_id = $1", [escalao_id]);
+    const todosJogos = await pool.query("SELECT id, to_char(data, 'DD-MM-YYYY') AS data, to_char(hora, 'HH24:MI') AS hora, equipa_casa, escalao_id, resultado_casa, equipa_fora, resultado_fora, localizacao, competicao, jogo_acabou FROM Jogo WHERE escalao_id = $1", [escalao_id]);
     
     // Resposta JSON com os jogos e o nome do escalão
     res.json({ 
@@ -58,23 +58,31 @@ router.get('/all/:escalao_id', async (req, res) => {
 router.get('/:escalao_id/:jogo_id', async (req, res) => {
   try {
     const { escalao_id, jogo_id } = req.params;
-    const jogo = await pool.query("SELECT id, to_char(data, 'DD-MM-YYYY') AS data, to_char(hora, 'HH24:MI') AS hora, equipa_casa, escalao_id, resultado_casa, equipa_fora, resultado_fora, localizacao, competicao FROM Jogo WHERE escalao_id = $1 AND id = $2", [escalao_id, jogo_id]);
+    const jogo = await pool.query("SELECT id, to_char(data, 'DD-MM-YYYY') AS data, to_char(hora, 'HH24:MI') AS hora, equipa_casa, escalao_id, resultado_casa, equipa_fora, resultado_fora, localizacao, competicao, jogo_acabou FROM Jogo WHERE escalao_id = $1 AND id = $2", [escalao_id, jogo_id]);
     if (jogo.rows.length === 0) {
       res.status(404).json({ error: 'Jogo não encontrado' });
       return;
     }
-    res.json({ jogo: jogo.rows[0] });
+    
+    // Converte data e hora do jogo para objetos Date e hora
+    const dataHoraJogo = new Date(`${jogo.rows[0].data} ${jogo.rows[0].hora}`);
+
+    // Verifica se o jogo já ocorreu ou está a decorrer
+    const jogoJaOcorreu = dataHoraJogo < new Date();
+
+    res.json({ jogo: jogo.rows[0], jogoJaOcorreu });
   } catch (err) {
     console.error('Erro ao obter jogo:', err);
     res.status(500).json({ error: 'Erro ao obter jogo' });
   }
 });
 
+
 // Obter um único jogo pelo ID
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const jogo = await pool.query("SELECT id, to_char(data, 'DD-MM-YYYY') AS data, to_char(hora, 'HH24:MI') AS hora, equipa_casa, escalao_id, resultado_casa, equipa_fora, resultado_fora, localizacao, competicao FROM Jogo WHERE id = $1", [id]);
+    const jogo = await pool.query("SELECT id, to_char(data, 'DD-MM-YYYY') AS data, to_char(hora, 'HH24:MI') AS hora, equipa_casa, escalao_id, resultado_casa, equipa_fora, resultado_fora, localizacao, competicao, jogo_acabou FROM Jogo WHERE id = $1", [id]);
     if (jogo.rows.length === 0) {
       return res.status(404).json({ error: 'Jogo não encontrado' });
     }
@@ -89,11 +97,11 @@ router.get('/:id', async (req, res) => {
 router.put('/update/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { data, hora, equipa_casa, escalao_id, equipa_fora, localizacao, competicao } = req.body;
+    const { data, hora, equipa_casa, escalao_id, equipa_fora, localizacao, competicao, jogoAcabou } = req.body;
 
     const jogoAtualizado = await pool.query(
-      "UPDATE jogo SET data = $1, hora = $2, equipa_casa = $3, escalao_id = $4, equipa_fora = $5, localizacao = $6, competicao = $7 WHERE id = $8 RETURNING *",
-      [data, hora, equipa_casa, escalao_id, equipa_fora, localizacao, competicao,id]
+      "UPDATE jogo SET data = $1, hora = $2, equipa_casa = $3, escalao_id = $4, equipa_fora = $5, localizacao = $6, competicao = $7, jogo_acabou = $8 WHERE id = $9 RETURNING *",
+      [data, hora, equipa_casa, escalao_id, equipa_fora, localizacao, competicao,jogoAcabou ,id]
     );
 
     if (jogoAtualizado.rows.length === 0) {
