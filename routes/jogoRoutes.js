@@ -70,14 +70,24 @@ router.get('/:escalao_id/:jogo_id', async (req, res) => {
     // Verifica se o jogo já ocorreu ou está a decorrer
     const jogoJaOcorreu = dataHoraJogo < new Date();
 
-    res.json({ jogo: jogo.rows[0], jogoJaOcorreu });
+    // Determina se o jogo terminou comparando o resultado do jogo com o resultado esperado
+    const jogoTerminado = jogo.rows[0].jogo_acabou;
+
+    let statusJogo;
+    if (jogoTerminado) {
+      statusJogo = "Encerrado";
+    } else if (jogoJaOcorreu) {
+      statusJogo = "Em andamento";
+    } else {
+      statusJogo = "Agendado";
+    }
+
+    res.json({ jogo: jogo.rows[0], status: statusJogo });
   } catch (err) {
     console.error('Erro ao obter jogo:', err);
     res.status(500).json({ error: 'Erro ao obter jogo' });
   }
 });
-
-
 // Obter um único jogo pelo ID
 router.get('/:id', async (req, res) => {
   try {

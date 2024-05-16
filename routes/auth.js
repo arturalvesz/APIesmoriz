@@ -61,13 +61,11 @@ router.get('/get-user-id/:token', async (req, res) => {
     }   
 });
 
-//Dados do user autenticado
-router.get('/user-info/:token', async (req, res) => {
-    const token = req.params.token;
-    if (!token) return res.status(401).send('Token not provided');
-    
+// Dados do usuário autenticado
+router.get('/user-info', authenticateToken, async (req, res) => {
     try {
-        const userId = await getUserIDFromToken(token);
+        // O ID do usuário está contido no objeto req.user definido pelo middleware authenticateToken
+        const userId = req.user.id;
         const result = await pool.query('SELECT nome, email FROM utilizador WHERE id = $1', [userId]);
         const user = result.rows[0];
         if (!user) return res.status(404).send('User not found');
