@@ -58,28 +58,31 @@ router.get('/all/:escalao_id', async (req, res) => {
 router.get('/:escalao_id/:jogo_id', async (req, res) => {
   try {
     const { escalao_id, jogo_id } = req.params;
-    const jogo = await pool.query("SELECT id, to_char(data, 'DD-MM-YYYY') AS data, to_char(hora, 'HH24:MI') AS hora, equipa_casa, escalao_id, resultado_casa, equipa_fora, resultado_fora, localizacao, competicao, jogo_acabou FROM Jogo WHERE escalao_id = $1 AND id = $2", [escalao_id, jogo_id]);
+    const jogo = await pool.query("SELECT id, data, hora, equipa_casa, escalao_id, resultado_casa, equipa_fora, resultado_fora, localizacao, competicao, jogo_acabou FROM Jogo WHERE escalao_id = $1 AND id = $2", [escalao_id, jogo_id]);
+    
     if (jogo.rows.length === 0) {
       res.status(404).json({ error: 'Jogo não encontrado' });
       return;
     }
-    
+
     const { data, hora } = jogo.rows[0];
 
     // Convertendo a data e hora do jogo para um objeto Date
-    const dataHoraJogo = new Date(`${data}T${hora}`);
+    const [dia, mes, ano] = data.split('-').map(Number);
+    const [horaJogo, minutoJogo] = hora.split(':').map(Number);
+    const dataHoraJogo = new Date(ano, mes - 1, dia, horaJogo, minutoJogo);
 
     // Verificar se o jogo já ocorreu ou está ocorrendo
     const jogoJaOcorreu = dataHoraJogo < new Date();
 
-    // Determina se o jogo terminou comparando o resultado do jogo com o resultado esperado
+    // Determinar se o jogo terminou comparando o resultado do jogo com o resultado esperado
     const jogoTerminado = jogo.rows[0].jogo_acabou;
 
     let statusJogo;
     if (jogoTerminado) {
       statusJogo = "Encerrado";
     } else if (jogoJaOcorreu) {
-      statusJogo = "Em andamento";
+      statusJogo = "Encerrado"; // Jogo que já ocorreu é considerado encerrado
     } else {
       statusJogo = "Agendado";
     }
@@ -90,6 +93,7 @@ router.get('/:escalao_id/:jogo_id', async (req, res) => {
     res.status(500).json({ error: 'Erro ao obter jogo' });
   }
 });
+
 // Obter um único jogo pelo ID
 router.get('/:id', async (req, res) => {
   try {
