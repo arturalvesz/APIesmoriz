@@ -54,7 +54,6 @@ router.get('/all/:escalao_id', async (req, res) => {
   }
 });
 
-//obter um jogo de um determinado escalao
 router.get('/:escalao_id/:jogo_id', async (req, res) => {
   try {
     const { escalao_id, jogo_id } = req.params;
@@ -65,24 +64,22 @@ router.get('/:escalao_id/:jogo_id', async (req, res) => {
       return;
     }
 
-    const { data, hora } = jogo.rows[0];
+    const { data, hora, jogo_acabou } = jogo.rows[0];
 
     // Convertendo a data e hora do jogo para um objeto Date
-    const [dia, mes, ano] = data.toString().split('-').map(Number);
-    const [horaJogo, minutoJogo] = hora.split(':').map(Number);
-    const dataHoraJogo = new Date(ano, mes - 1, dia, horaJogo, minutoJogo);
+    const dataHoraJogo = new Date(`${data}T${hora}`);
 
     // Verificar se o jogo já ocorreu ou está ocorrendo
-    const jogoJaOcorreu = dataHoraJogo < new Date();
+    const agora = new Date();
+    console.log('Data e hora atual:', agora);
 
-    // Determinar se o jogo terminou comparando o resultado do jogo com o resultado esperado
-    const jogoTerminado = jogo.rows[0].jogo_acabou;
+    const jogoJaOcorreu = dataHoraJogo < agora;
 
     let statusJogo;
-    if (jogoTerminado) {
+    if (jogo_acabou) {
       statusJogo = "Encerrado";
     } else if (jogoJaOcorreu) {
-      statusJogo = "Em Andamento"; // Jogo que já ocorreu é considerado encerrado
+      statusJogo = "Em Andamento";
     } else {
       statusJogo = "Agendado";
     }
@@ -93,6 +90,7 @@ router.get('/:escalao_id/:jogo_id', async (req, res) => {
     res.status(500).json({ error: 'Erro ao obter jogo' });
   }
 });
+
 
 // Obter um único jogo pelo ID
 router.get('/:id', async (req, res) => {
