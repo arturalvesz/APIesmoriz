@@ -61,6 +61,23 @@ router.get('/get-user-id/:token', async (req, res) => {
     }   
 });
 
+//Dados do user autenticado
+router.get('/user-info/:token', async (req, res) => {
+    const token = req.params.token;
+    if (!token) return res.status(401).send('Token not provided');
+    
+    try {
+        const userId = await getUserIDFromToken(token);
+        const result = await pool.query('SELECT nome, email FROM utilizador WHERE id = $1', [userId]);
+        const user = result.rows[0];
+        if (!user) return res.status(404).send('User not found');
+        res.json({ authUser: { nome: user.nome, email: user.email } });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error fetching user data');
+    }
+});
+
 // Rota para login de usuário
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
