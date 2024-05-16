@@ -65,9 +65,12 @@ router.get('/:escalao_id/:jogo_id', async (req, res) => {
     }
 
     const { data, hora, jogo_acabou } = jogo.rows[0];
+    const dataHoraJogo = new Date(data); // Convertendo a string de data para um objeto Date
 
-    // Convertendo a data e hora do jogo para um objeto Date
-    const dataHoraJogo = `${data.split('T')[0]}T${hora}`;
+    // Adicionando a hora do jogo ao objeto Date
+    const [horaJogo, minutoJogo, segundoJogo] = hora.split(':').map(Number);
+    dataHoraJogo.setHours(horaJogo, minutoJogo, segundoJogo);
+
 
     // Verificar se o jogo já ocorreu ou está ocorrendo
     const agora = new Date();
