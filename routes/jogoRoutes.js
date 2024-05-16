@@ -72,6 +72,7 @@ router.get('/:escalao_id/:jogo_id', async (req, res) => {
     // Verificar se o jogo já ocorreu ou está ocorrendo
     const agora = new Date();
     console.log('Data e hora atual:', agora);
+    console.log('Data e hora jogo:', dataHoraJogo);
 
     const jogoJaOcorreu = dataHoraJogo < agora;
 
