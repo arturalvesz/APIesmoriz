@@ -54,7 +54,7 @@ router.get('/get-user-id/:token', async (req, res) => {
         const decodedToken = jwt.verify(token, JWT_SECRET);
         const userId = decodedToken.id;
         // Retornar o ID do usuário na resposta
-        res.json(userId);
+        res.json({userId : userId});
     } catch (error) {
         console.error('Erro ao verificar o token:', error);
         res.status(400).json({ error: 'Token inválido ou expirado' });
