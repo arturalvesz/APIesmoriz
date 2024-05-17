@@ -21,7 +21,7 @@ router.post('/novo', async (req, res) => {
 router.get('/all', async (req, res) => {
   try {
     const todosEventos = await pool.query('SELECT * FROM Evento');
-    res.json(todosEventos.rows);
+    res.json({eventos : todosEventos.rows });
   } catch (err) {
     console.error('Erro ao obter eventos:', err);
     res.status(500).json({ error: 'Erro ao obter eventos' });
