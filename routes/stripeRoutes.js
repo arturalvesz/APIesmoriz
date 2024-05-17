@@ -12,10 +12,8 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 router.post("/create-checkout-session", async (req, res) => {
   const {precoNormal, quantidade, bilheteiraId, dataValidade, utilizadorId } = req.body;
 
-  const [day, month, year] = dataValidade.split('-');
-  dataValidade = `${year}-${
-    month.length === 1 ? '0' + month : month
-  }-${day.length === 1 ? '0' + day : day}`;
+  dataValidade = dataValidade.split("-").reverse().join("-");
+
 
   try {
     // Crie a sessão de checkout no Stripe
