@@ -40,7 +40,7 @@ router.post("/create-checkout-session", async (req, res) => {
       payment_intent_data: {
         metadata: {
           bilheteiraId: bilheteiraId,
-          dataValidade: dataValidade,
+          dataValidade: dataV,
           utilizadorId: utilizadorId,
         },
       },
