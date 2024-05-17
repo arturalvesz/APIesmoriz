@@ -12,7 +12,9 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 router.post("/create-checkout-session", async (req, res) => {
   const {precoNormal, quantidade, bilheteiraId, dataValidade, utilizadorId } = req.body;
 
-  dataValidade = dataValidade.split("-").reverse().join("-");
+  var dataV = dataValidade;
+  
+  dataV = dataV.split("-").reverse().join("-");
 
 
   try {
