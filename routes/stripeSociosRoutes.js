@@ -57,6 +57,8 @@ router.post("/create-checkout-session", async (req, res) => {
         metadata: {
           utilizadorId: utilizadorId,
         },
+        billing_cycle_anchor: Math.round((new Date().setMonth(new Date().getMonth() + 1)) / 1000),
+
       },
     });
 
