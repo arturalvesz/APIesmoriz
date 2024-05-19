@@ -18,7 +18,6 @@ const utilizadorRoutes = require('./routes/utilizadorRoutes');
 const bilheteiraRoutes = require('./routes/bilheteiraRoutes');
 const bilheteRoutes = require('./routes/bilheteRoutes');
 const stripeRoutes = require('./routes/stripeRoutes');
-const stripeRoutes = require('./routes/stripeRoutes');
 const stripeSociosRoutes = require('./routes/stripeSociosRoutes');
 const stripeWebhookRoutes = require('./routes/stripeWebhookRoutes');
 const auth = require('./routes/auth');
