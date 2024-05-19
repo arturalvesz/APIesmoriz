@@ -2,9 +2,6 @@ const express = require("express");
 const router = express.Router();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const pool = require("../dbConfig");
-const pdfLib = require('pdf-lib');
-const nodemailer = require('nodemailer');
-const fs = require('fs');
 
 const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 
