@@ -20,14 +20,15 @@ router.post("/webhook", async (req, res) => {
       expand: ['line_items'],
     });
 
-    const paymentIntentId = event.data.object.payment_intent;
+    if (event.type === 'checkout.session.completed') {
+      const lineItems = session.line_items.data;
+
+      const paymentIntentId = event.data.object.payment_intent;
 
     const paymentIntent = await stripe.paymentIntents.retrieve(
       paymentIntentId
     );
 
-    if (event.type === 'checkout.session.completed') {
-      const lineItems = session.line_items.data;
       // Inicializa a quantidade total como 0
       let quantidadeTotal = 0;
       // Itera sobre os itens da linha para calcular a quantidade total
