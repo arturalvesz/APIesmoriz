@@ -88,12 +88,7 @@ async function handleSubscriptionCreated(subscription) {
   const userId = subscription.metadata.userId;
   const dataNascimento = subscription.metadata.dataNascimento;
 
-  const query = `
-    INSERT INTO socio (user_id, status, data_inicio_socio, data_expiracao_mensalidade, data_nascimento)
-    VALUES ($1, $2, $3, $4, $5)
-    ON CONFLICT (user_id) DO UPDATE 
-    SET status = $2, data_inicio_socio = $3, data_expiracao_mensalidade = $4, data_nascimento = $5;
-  `;
+  const query = "INSERT INTO socio (user_id, status, data_inicio_socio, data_expiracao_mensalidade, data_nascimento) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (user_id) DO UPDATE  SET status = $2, data_inicio_socio = $3, data_expiracao_mensalidade = $4, data_nascimento = $5; ";
   await pool.query(query, [userId, status, dataInicio, dataExpiracao, dataNascimento]);
 }
 
