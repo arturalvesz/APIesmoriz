@@ -40,7 +40,7 @@ app.use('/api/sets', setsRoutes);
 app.use('/api/bilheteira', bilheteiraRoutes);
 app.use('/api/bilhetes', bilheteRoutes);
 app.use('/api/stripe', stripeRoutes);
-app.use('/api/sociosStripe', stripeSociosRoutes);
+app.use('/api/stripeSocios', stripeSociosRoutes);
 app.use('/api/auth', auth);
 
 

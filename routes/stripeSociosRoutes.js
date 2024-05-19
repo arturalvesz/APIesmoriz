@@ -44,7 +44,7 @@ router.post("/create-checkout-session", async (req, res) => {
       success_url: "https://esmorizgc.pt",
       cancel_url: "https://esmorizgc.pt",
 
-      subscription_intent_data: {
+      subscription_data: {
         metadata: {
           utilizadorId: utilizadorId,
         },
