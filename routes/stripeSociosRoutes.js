@@ -3,36 +3,46 @@ const router = express.Router();
 const pool = require("../dbConfig");
 const bodyParser = require("body-parser");
 const axios = require("axios");
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 require("dotenv").config();
-
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 router.post("/create-checkout-session", async (req, res) => {
   const { email, priceId, utilizadorId } = req.body;
 
   try {
+    // Encontrar ou criar um cliente no Stripe com base no email
+    let customer = await stripe.customers.list({ email: email, limit: 1 });
+    if (customer.data.length === 0) {
+      // Se o cliente não existir, criar um novo cliente
+      customer = await stripe.customers.create({
+        email: email,
+      });
+    } else {
+      // Se o cliente já existe, utilizar o primeiro da lista
+      customer = customer.data[0];
+    }
+
     // Verificar se o cliente já tem uma assinatura ativa para o produto específico
     const subscriptions = await stripe.subscriptions.list({
-      customer_email: email, // Filtrar assinaturas pelo email do cliente
-      status: "active", // Apenas assinaturas ativas
-      expand: ["data.default_payment_method"], // Inclui informações adicionais
+      customer: customer.id,
+      status: "active",
+      expand: ["data.default_payment_method"],
     });
 
     const activeSubscription = subscriptions.data.find((subscription) => {
-      return subscription.plan.id === priceId; // Verifica se o ID do plano corresponde ao ID do preço
+      return subscription.plan.id === priceId;
     });
 
     if (activeSubscription) {
-      // Cliente já tem uma assinatura ativa para o produto específico
       return res
         .status(400)
         .json({ error: "Customer already has an active subscription" });
     }
 
-    // Se o cliente não tiver uma assinatura ativa, criar uma nova sessão de checkout
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
+      customer: customer.id,
       line_items: [
         {
           price: priceId,
@@ -57,6 +67,5 @@ router.post("/create-checkout-session", async (req, res) => {
     res.status(500).json({ error: "Falha ao criar sessão de checkout" });
   }
 });
-
 
 module.exports = router;
