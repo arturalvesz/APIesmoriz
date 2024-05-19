@@ -52,7 +52,7 @@ router.post("/webhook", async (req, res) => {
       //await handleSubscriptionUpdated(event.data.object);
       res.status(200).send();
     } else if (event.type === 'customer.subscription.deleted') {
-      await handleSubscriptionDeleted(event.data.object);
+      //await handleSubscriptionDeleted(event.data.object);
       //res.status(200).send();
     } else {
       console.log("Tipo de evento não tratado:", event.type);
