@@ -1,42 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../dbConfig');
-const admin = require("firebase-admin");
 const bcrypt = require("bcrypt");
 
-
-const serviceAccount = require('../serviceAccountKey.json');
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
-
-// Rota para atualizar um usuário existente adicionando o userId com base no email
-router.put('/add-user-id', async (req, res) => {
-  try {
-    const { email } = req.body;
-
-    // Verificar se o email já está em uso no Firebase Authentication
-    const userRecord = await admin.auth().getUserByEmail(email);
-    const userId = userRecord.uid;
-
-    // Atualizar o usuário existente no PostgreSQL adicionando o userId
-    const updatedUser = await pool.query(
-      'UPDATE utilizador SET userId = $1 WHERE email = $2 RETURNING *',
-      [userId, email]
-    );
-
-    // Verificar se o usuário foi atualizado com sucesso
-    if (updatedUser.rows.length === 0) {
-      return res.status(404).json({ error: 'Usuário não encontrado' });
-    }
-
-    res.json(updatedUser.rows[0]);
-  } catch (err) {
-    console.error('Erro ao adicionar userId ao usuário:', err);
-    res.status(500).json({ error: 'Erro ao adicionar userId ao usuário' });
-  }
-});
 
 // Criar um novo utilizador
 router.post('/novo', async (req, res) => {
