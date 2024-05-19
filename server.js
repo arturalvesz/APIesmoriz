@@ -17,8 +17,9 @@ const patrocinadorRoutes = require('./routes/patrocinadorRoutes');
 const utilizadorRoutes = require('./routes/utilizadorRoutes');
 const bilheteiraRoutes = require('./routes/bilheteiraRoutes');
 const bilheteRoutes = require('./routes/bilheteRoutes');
-const stripeSociosRoutes = require('./routes/stripeSociosRoutes');
 const stripeRoutes = require('./routes/stripeRoutes');
+const stripeRoutes = require('./routes/stripeRoutes');
+const stripeSociosRoutes = require('./routes/stripeSociosRoutes');
 const stripeWebhookRoutes = require('./routes/stripeWebhookRoutes');
 const auth = require('./routes/auth');
 
@@ -40,7 +41,7 @@ app.use('/api/sets', setsRoutes);
 app.use('/api/bilheteira', bilheteiraRoutes),
 app.use('/api/bilhetes', bilheteRoutes),
 app.use('/api/stripe', stripeRoutes),
-app.use('/api/stripeSocios', stripeSociosRoutes),
+app.use('(api/sociosStripe', stripeSociosRoutes),
 app.use('/api/auth', auth);
 
 
