@@ -45,7 +45,15 @@ router.post("/webhook", async (req, res) => {
 
       res.status(200).send();
 
-      res.redirect('')
+    } else if (event.type === 'customer.subscription.created') {
+      await handleSubscriptionCreated(event.data.object);
+      res.status(200).send();
+    } else if (event.type === 'customer.subscription.updated') {
+      //await handleSubscriptionUpdated(event.data.object);
+      res.status(200).send();
+    } else if (event.type === 'customer.subscription.deleted') {
+      await handleSubscriptionDeleted(event.data.object);
+      //res.status(200).send();
     } else {
       console.log("Tipo de evento não tratado:", event.type);
       res.status(200).send();
@@ -72,5 +80,21 @@ async function criarBilhete(bilheteiraId, dataValidade, quantidade, dataCompra, 
   }
 }
 
+async function handleSubscriptionCreated(subscription) {
+  
+  const status = subscription.status;
+  const dataInicio = new Date(subscription.current_period_start * 1000);
+  const dataExpiracao = new Date(subscription.current_period_end * 1000);
+  const userId = subscription.metadata.userId;
+  const dataNascimento = subscription.metadata.dataNascimento;
+
+  const query = `
+    INSERT INTO socio (user_id, status, data_inicio_socio, data_expiracao_mensalidade, data_nascimento)
+    VALUES ($1, $2, $3, $4, $5)
+    ON CONFLICT (user_id) DO UPDATE 
+    SET status = $2, data_inicio_socio = $3, data_expiracao_mensalidade = $4, data_nascimento = $5;
+  `;
+  await pool.query(query, [userId, status, dataInicio, dataExpiracao, dataNascimento]);
+}
 
 module.exports = router;

@@ -34,8 +34,8 @@ router.post("/create-checkout-session", async (req, res) => {
         },
       ],
       mode: "payment",
-      success_url: "https://esmorizgc://esmorizgc.com/sucesso",
-      cancel_url: "https://esmorizgc://esmorizgc.com/cancel", 
+      success_url: "https://esmorizgc.pt",
+      cancel_url: "https://esmorizgc.pt", 
 
       payment_intent_data: {
         metadata: {
