@@ -21,6 +21,8 @@ router.post("/webhook", async (req, res) => {
     });
 
     if (event.type === 'checkout.session.completed') {
+
+      if(session.mode === 'payment'){
       const lineItems = session.line_items.data;
 
       const paymentIntentId = event.data.object.payment_intent;
@@ -43,6 +45,11 @@ router.post("/webhook", async (req, res) => {
 
       res.status(200).send();
 
+    }else if(session.mode === 'subscription'){
+      await handleSubscriptionCreated(event.data.object);
+      res.status(200).send();
+    }
+    /*
     } else if (event.type === 'customer.subscription.created') {
       await handleSubscriptionCreated(event.data.object);
       res.status(200).send();
@@ -51,7 +58,7 @@ router.post("/webhook", async (req, res) => {
       res.status(200).send();
     } else if (event.type === 'customer.subscription.deleted') {
       //await handleSubscriptionDeleted(event.data.object);
-      //res.status(200).send();
+      //res.status(200).send();*/
     } else {
       console.log("Tipo de evento não tratado:", event.type);
       res.status(200).send();
