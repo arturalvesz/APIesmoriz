@@ -71,7 +71,7 @@ router.get('/user-info/:token', async (req, res) => {
         const result = await pool.query('SELECT nome, email FROM utilizador WHERE id = $1', [userId]);
         const user = result.rows[0];
         if (!user) return res.status(404).send('User not found');
-        res.json({ authUser: { nome: user.nome, email: user.email } });
+        res.json({ authUser: { nome: user.nome, email: user.email, userId: userId } });
     } catch (error) {
         console.error(error);
         res.status(400).json({ error: 'Invalid or expired token' });
