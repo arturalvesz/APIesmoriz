@@ -44,6 +44,8 @@ router.post("/webhook", async (req, res) => {
       await criarBilhete(bilheteiraId, dataValidade, quantidadeTotal, new Date(), utilizadorId);
 
       res.status(200).send();
+
+      res.redirect('')
     } else {
       console.log("Tipo de evento não tratado:", event.type);
       res.status(200).send();
