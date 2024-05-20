@@ -46,11 +46,34 @@ router.get('/:id', async (req, res) => {
 router.get('/utilizador/:userid', async (req, res) => {
   try {
     const { userid } = req.params;
-    const socio = await pool.query('SELECT * FROM Socio WHERE user_id = $1', [userid]);
-    if (socio.rows.length === 0) {
+    const resultado = await pool.query('SELECT * FROM Socio WHERE user_id = $1', [userid]);
+    if (resultado.rows.length === 0) {
       return res.status(404).json({ error: 'Sócio não encontrado' });
     }
-    res.json({socio: socio.rows[0]});
+
+
+    const formatDate = (date) => {
+      if (!date) return null;
+      const [yyyy, mm, dd] = date.split('T')[0].split('-');
+      return `${dd}-${mm}-${yyyy}`;
+    };
+
+    // Get the socio object and format its date fields
+    const socio = resultado.rows[0];
+    /*if (socio.created_at) {
+      socio.created_at = formatDate(socio.created_at);
+    }
+    if (socio.data_nascimento) {
+      socio.data_nascimento = formatDate(socio.data_nascimento);
+    }*/
+    if (socio.data_expiracao_mensalidade) {
+      socio.data_expiracao_mensalidade = formatDate(socio.data_expiracao_mensalidade);
+    }
+    if (socio.data_inicio_socio) {
+      socio.data_inicio_socio = formatDate(socio.data_inicio_socio);
+    }
+
+    res.json({socio: socio});
   } catch (err) {
     console.error('Erro ao obter sócio pelo userID:', err);
     res.status(500).json({ error: 'Erro ao obter sócio pelo userID' });
