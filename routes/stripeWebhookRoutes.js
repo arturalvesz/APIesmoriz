@@ -48,10 +48,14 @@ router.post("/webhook", async (req, res) => {
     }else if(session.mode === 'subscription'){
 
       if(event.type === 'customer.subscription.updated'){
+        console.log("current_period_start: ", (subscription.current_period_start * 1000).toLocaleDateString('en-CA'));
+        console.log("current_period_end: ", (subscription.current_period_end * 1000).toLocaleDateString('en-CA'));
         await handleSubscriptionUpdate(event.data.object);
         res.status(200).send();
       }
       else{
+        console.log("current_period_start: ", (subscription.current_period_start * 1000).toLocaleDateString('en-CA'));
+        console.log("current_period_end: ", (subscription.current_period_end * 1000).toLocaleDateString('en-CA'));
         await handleSubscriptionCreated(event.data.object);
         res.status(200).send();
       }
@@ -98,7 +102,7 @@ async function handleSubscriptionCreated(subscription) {
 
   console.log("current_period_start:", subscription.current_period_start);
   console.log("current_period_end:", subscription.current_period_end);
-  
+
   const status = subscription.status;
   const dataInicio = new Date(subscription.current_period_start * 1000).toLocaleDateString('en-CA');
   const dataExpiracao = new Date(subscription.current_period_end * 1000).toLocaleDateString('en-CA');
