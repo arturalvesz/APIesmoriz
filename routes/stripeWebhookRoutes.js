@@ -107,7 +107,7 @@ async function handleSubscriptionCreated(subscription) {
   const status = subscription.status;
   const dataInicio = new Date(subscription.current_period_start * 1000).toLocaleDateString('en-CA');
   const dataExpiracao = new Date(subscription.current_period_end * 1000).toLocaleDateString('en-CA');
-  const userId = subscription.metadata.userId;
+  const userId = parseInt(subscription.metadata.utilizadorId);
   //const dataNascimento = subscription.metadata.dataNascimento;
 
   const query = "INSERT INTO socio (user_id, estado, data_inicio_socio, data_expiracao_mensalidade) VALUES ($1, $2, $3, $4) ON CONFLICT (user_id) DO UPDATE  SET estado = $2, data_inicio_socio = $3, data_expiracao_mensalidade = $4";
