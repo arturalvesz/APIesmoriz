@@ -96,8 +96,8 @@ async function criarBilhete(bilheteiraId, dataValidade, quantidade, dataCompra, 
 async function handleSubscriptionCreated(subscription) {
   
   const status = subscription.status;
-  const dataInicio = new Date(subscription.current_period_start * 1000).toISOString().split('T')[0];
-  const dataExpiracao = new Date(subscription.current_period_end * 1000).toISOString().split('T')[0];
+  const dataInicio = new Date(subscription.current_period_start * 1000).toLocaleDateString('ko-KR');
+  const dataExpiracao = new Date(subscription.current_period_end * 1000).toLocaleDateString('ko-KR');
   const userId = subscription.metadata.userId;
   //const dataNascimento = subscription.metadata.dataNascimento;
 
