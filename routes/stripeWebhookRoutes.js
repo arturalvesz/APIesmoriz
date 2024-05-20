@@ -47,7 +47,8 @@ router.post("/webhook", async (req, res) => {
 
     }else if(session.mode === 'subscription'){
 
-      const subscription = event.data.object.subscription;
+      const subscriptionId = event.data.object.subscription;
+      const subscription = await stripe.subscriptions.retrive(subscriptionId);
 
       if (event.type === 'customer.subscription.updated') {
         console.log("current_period_start: ", (subscription.current_period_start * 1000).toLocaleDateString('en-CA'));
