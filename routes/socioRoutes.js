@@ -36,10 +36,24 @@ router.get('/:id', async (req, res) => {
     if (socio.rows.length === 0) {
       return res.status(404).json({ error: 'Sócio não encontrado' });
     }
-    res.json(socio.rows[0]);
+    res.json({socio: socio.rows[0]});
   } catch (err) {
     console.error('Erro ao obter sócio pelo ID:', err);
     res.status(500).json({ error: 'Erro ao obter sócio pelo ID' });
+  }
+});
+
+router.get('/utilizador/:userid', async (req, res) => {
+  try {
+    const { userid } = req.params;
+    const socio = await pool.query('SELECT * FROM Socio WHERE userid = $1', [userid]);
+    if (socio.rows.length === 0) {
+      return res.status(404).json({ error: 'Sócio não encontrado' });
+    }
+    res.json({socio: socio.rows[0]});
+  } catch (err) {
+    console.error('Erro ao obter sócio pelo userID:', err);
+    res.status(500).json({ error: 'Erro ao obter sócio pelo userID' });
   }
 });
 
