@@ -54,7 +54,7 @@ router.get('/utilizador/:userid', async (req, res) => {
 
     const formatDate = (date) => {
       if (!date) return null;
-      const [yyyy, mm, dd] = date.split('T')[0].split('-');
+      const [yyyy, mm, dd] = date.toISOString().split('T')[0].split('-');
       return `${dd}-${mm}-${yyyy}`;
     };
 
