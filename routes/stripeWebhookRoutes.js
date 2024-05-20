@@ -47,15 +47,14 @@ router.post("/webhook", async (req, res) => {
 
     }else if(session.mode === 'subscription'){
 
-      const subscription = event.data.object;
+      const subscription = event.data.object.subscription;
 
-      if(event.type === 'customer.subscription.updated'){
+      if (event.type === 'customer.subscription.updated') {
         console.log("current_period_start: ", (subscription.current_period_start * 1000).toLocaleDateString('en-CA'));
         console.log("current_period_end: ", (subscription.current_period_end * 1000).toLocaleDateString('en-CA'));
-        await handleSubscriptionUpdate(event.data.object);
+        await handleSubscriptionUpdate(subscription);
         res.status(200).send();
-      }
-      else{
+      } else {
         console.log("current_period_start: ", (subscription.current_period_start * 1000).toLocaleDateString('en-CA'));
         console.log("current_period_end: ", (subscription.current_period_end * 1000).toLocaleDateString('en-CA'));
         await handleSubscriptionCreated(subscription);
