@@ -46,7 +46,7 @@ router.get('/:id', async (req, res) => {
 router.get('/utilizador/:userid', async (req, res) => {
   try {
     const { userid } = req.params;
-    const socio = await pool.query('SELECT * FROM Socio WHERE userid = $1', [userid]);
+    const socio = await pool.query('SELECT * FROM Socio WHERE user_id = $1', [userid]);
     if (socio.rows.length === 0) {
       return res.status(404).json({ error: 'Sócio não encontrado' });
     }
