@@ -100,8 +100,6 @@ async function criarBilhete(bilheteiraId, dataValidade, quantidade, dataCompra, 
 }
 
 async function handleSubscriptionCreated(subscription) {
-  
-
   console.log("current_period_start:", subscription.current_period_start);
   console.log("current_period_end:", subscription.current_period_end);
 
@@ -109,10 +107,27 @@ async function handleSubscriptionCreated(subscription) {
   const dataInicio = new Date(subscription.current_period_start * 1000).toLocaleDateString('en-CA');
   const dataExpiracao = new Date(subscription.current_period_end * 1000).toLocaleDateString('en-CA');
   const userId = parseInt(subscription.metadata.utilizadorId);
-  //const dataNascimento = subscription.metadata.dataNascimento;
+  const numSocio = parseInt(subscription.metadata.numSocio);
 
-  const query = "INSERT INTO socio (user_id, estado, data_inicio_socio, data_expiracao_mensalidade) VALUES ($1, $2, $3, $4) ON CONFLICT (user_id) DO UPDATE  SET estado = $2, data_inicio_socio = $3, data_expiracao_mensalidade = $4";
-  await pool.query(query, [userId, status, dataInicio, dataExpiracao]);
+  try {
+    // Verifica se o numSocio já existe
+    const checkQuery = "SELECT 1 FROM socio WHERE num_socio = $1";
+    const checkResult = await pool.query(checkQuery, [numSocio]);
+
+    if (checkResult.rows.length > 0) {
+      // numSocio existe, fazer update
+      const updateQuery = "UPDATE socio SET estado = $1, data_inicio_socio = $2, data_expiracao_mensalidade = $3 WHERE num_socio = $4";
+      await pool.query(updateQuery, [status, dataInicio, dataExpiracao, numSocio]);
+    } else {
+      // numSocio não existe, inserir novo registro
+      const insertQuery = "INSERT INTO socio (user_id, estado, data_inicio_socio, data_expiracao_mensalidade) VALUES ($1, $2, $3, $4)";
+      await pool.query(insertQuery, [userId, status, dataInicio, dataExpiracao]);
+    }
+
+    console.log("Operação concluída com sucesso.");
+  } catch (err) {
+    console.error("Erro ao processar a assinatura:", err);
+  }
 }
 
 
