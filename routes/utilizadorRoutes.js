@@ -50,7 +50,6 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Atualizar um utilizador
 router.put('/update/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -78,8 +77,9 @@ router.put('/update/:id', async (req, res) => {
     }
 
     if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10); // Hash da nova senha
       updateQuery += ` password = $${paramCount},`;
-      queryParams.push(password);
+      queryParams.push(hashedPassword);
       paramCount++;
     }
 
