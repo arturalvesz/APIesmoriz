@@ -79,16 +79,21 @@ router.get("/utilizador/:id", async (req, res) => {
     // Consulta para obter os bilhetes do utilizador criados nos últimos 30 minutos
     const bilhetesResult = await pool.query(`
       SELECT
-        id,
-        bilheteira_id,
-        TO_CHAR(data_compra, 'DD-MM-YYYY HH24:MI:SS') AS data_compra,
-        TO_CHAR(data_validade, 'DD-MM-YYYY') AS data_validade,
-        utilizador_id,
-        validado
-      FROM bilhete
-      WHERE utilizador_id = $1
-        AND data_compra >= NOW() - INTERVAL '30 minutes'
+        b.id,
+        b.bilheteira_id,
+        TO_CHAR(b.data_compra, 'DD-MM-YYYY') AS data_compra,
+        TO_CHAR(b.data_validade, 'DD-MM-YYYY') AS data_validade,
+        b.utilizador_id,
+        b.validado,
+        j.equipa_casa,
+        j.equipa_fora
+      FROM bilhete b
+      JOIN bilheteira bi ON b.bilheteira_id = bi.id
+      JOIN jogo j ON bi.jogo_id = j.id
+      WHERE b.utilizador_id = $1
+        AND b.data_compra >= NOW() - INTERVAL '30 minutes'
     `, [id]);
+
 
     const bilhetes = bilhetesResult.rows;
 
