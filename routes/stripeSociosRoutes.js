@@ -8,7 +8,7 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 require("dotenv").config();
 
 router.post("/create-checkout-session", async (req, res) => {
-  const { email, utilizadorId, num_socio } = req.body;
+  const { email, utilizadorId } = req.body;
 
   const priceId = "price_1PGSDrKBAZDUE29JasXKsCos" ;
   try {
@@ -57,7 +57,6 @@ router.post("/create-checkout-session", async (req, res) => {
       subscription_data: {
         metadata: {
           utilizadorId: utilizadorId,
-          numSocio: num_socio,
         },
       },
     });
@@ -68,6 +67,7 @@ router.post("/create-checkout-session", async (req, res) => {
     res.status(500).json({ error: "Falha ao criar sessão de checkout" });
   }
 });
+
 
 router.post('/cancel-subscription', async (req, res) => {
   const { email } = req.body;

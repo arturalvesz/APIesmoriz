@@ -55,7 +55,6 @@ router.post("/webhook", async (req, res) => {
         res.status(200).send();
       }
 
-
     }else if (event.type === 'customer.subscription.updated') {
       const subscriptionId = eventObject.subscription;
       const subscription = await stripe.subscriptions.retrieve(subscriptionId);
@@ -111,38 +110,22 @@ async function handleSubscriptionCreated(subscription) {
   const dataInicio = new Date(subscription.current_period_start * 1000).toLocaleDateString('en-CA');
   const dataExpiracao = new Date(subscription.current_period_end * 1000).toLocaleDateString('en-CA');
   const userId = parseInt(subscription.metadata.utilizadorId);
-  const numSocio = parseInt(subscription.metadata.numSocio);
 
   try {
-    if (numSocio === null) {
-      // Verifica se o utilizador já existe na tabela socio
-      const checkUserQuery = "SELECT 1 FROM socio WHERE user_id = $1";
-      const checkUserResult = await pool.query(checkUserQuery, [userId]);
+    // Verifica se o userId já existe na tabela socio
+    const checkUserQuery = "SELECT 1 FROM socio WHERE user_id = $1";
+    const checkUserResult = await pool.query(checkUserQuery, [userId]);
 
-      if (checkUserResult.rows.length > 0) {
-        // Utilizador existe na tabela socio, fazer update
-        const updateUserQuery = "UPDATE socio SET estado = $1, data_expiracao_mensalidade = $2 WHERE user_id = $3";
-        await pool.query(updateUserQuery, [status, dataExpiracao, userId]);
-      } else {
-        // Utilizador não existe na tabela socio, inserir novo registro
-        const insertUserQuery = "INSERT INTO socio (user_id, estado, data_inicio_socio, data_expiracao_mensalidade) VALUES ($1, $2, $3, $4)";
-        await pool.query(insertUserQuery, [userId, status, dataInicio, dataExpiracao]);
-      }
+    if (checkUserResult.rows.length > 0) {
+      // Utilizador já tem numero de sócio, fazer update
+      const updateUserQuery = "UPDATE socio SET estado = $1, data_inicio_socio = $2, data_expiracao_mensalidade = $3 WHERE user_id = $4";
+      await pool.query(updateUserQuery, [status, dataInicio, dataExpiracao, userId]);
     } else {
-      // Verifica se o numSocio já existe
-      const checkQuery = "SELECT 1 FROM socio WHERE num_socio = $1";
-      const checkResult = await pool.query(checkQuery, [numSocio]);
-
-      if (checkResult.rows.length > 0) {
-        // numSocio existe, fazer update
-        const updateQuery = "UPDATE socio SET estado = $1, data_inicio_socio = $2, data_expiracao_mensalidade = $3 WHERE num_socio = $4";
-        await pool.query(updateQuery, [status, dataInicio, dataExpiracao, numSocio]);
-      } else {
-        // numSocio não existe, inserir novo registro
-        const insertQuery = "INSERT INTO socio (user_id, estado, data_inicio_socio, data_expiracao_mensalidade) VALUES ($1, $2, $3, $4)";
-        await pool.query(insertQuery, [userId, status, dataInicio, dataExpiracao]);
-      }
+      // Utilizador não existe na tabela socio, inserir novo registro
+      const insertUserQuery = "INSERT INTO socio (user_id, estado, data_inicio_socio, data_expiracao_mensalidade) VALUES ($1, $2, $3, $4)";
+      await pool.query(insertUserQuery, [userId, status, dataInicio, dataExpiracao]);
     }
+
     console.log("Operação concluída com sucesso.");
   } catch (err) {
     console.error("Erro ao processar a assinatura:", err);
