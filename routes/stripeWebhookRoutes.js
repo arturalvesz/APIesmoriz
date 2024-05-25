@@ -44,15 +44,7 @@ router.post("/webhook", async (req, res) => {
       }
 
       res.status(200).send();
-    }  else if (event.type === 'customer.subscription.updated') {
-      const subscriptionId = event.data.object.id;
-      const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-
-      // Call your function to handle subscription update logic
-      await handleSubscriptionUpdated(subscription);
-
-      res.status(200).send();
-    }else {
+    } else {
       console.log("Tipo de evento não tratado:", event.type);
       res.status(200).send();
     }
