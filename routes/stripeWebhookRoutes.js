@@ -53,11 +53,14 @@ router.post("/webhook", async (req, res) => {
       if (event.type === 'customer.subscription.updated') {
         await handleSubscriptionUpdate(subscription);
         res.status(200).send();
-      } else {
+      }else if(event.type === 'customer.subscription.deleted') {
+        await handleSubscriptionUpdate(subscription);
+        res.status(200).send();
+      }
+      else if(event.type === 'customer.subscription.created') {
         await handleSubscriptionCreated(subscription);
         res.status(200).send();
       }
-
     }
     /*
     } else if (event.type === 'customer.subscription.created') {
