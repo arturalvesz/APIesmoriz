@@ -140,7 +140,7 @@ async function handleSubscriptionUpdate(subscription) {
   const userId = subscription.metadata.userId;
   //const dataNascimento = subscription.metadata.dataNascimento;
 
-  const query = "INSERT INTO socio (user_id, estado, data_expiracao_mensalidade) VALUES ($1, $2, $3) ON CONFLICT (user_id) DO UPDATE  SET estado = $2,data_expiracao_mensalidade = $3";
+  const query = "UPDATE socio SET estado = $2, data_expiracao_mensalidade = $3 WHERE user_id = $1";
   await pool.query(query, [userId, status, dataExpiracao]);
 }
 
