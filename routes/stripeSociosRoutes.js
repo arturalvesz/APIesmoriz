@@ -74,7 +74,7 @@ router.post('/cancel-subscription', async (req, res) => {
 
   try {
     // Encontrar o cliente no Stripe pelo email
-    const customersData = await stripeTest.customers.list();
+    const customersData = await stripe.customers.list();
     let findData = customersData.data.find((x) => x.email === email);
     let customer = findData;
 
