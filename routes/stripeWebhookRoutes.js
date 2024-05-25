@@ -16,12 +16,12 @@ router.post("/webhook", async (req, res) => {
     );
     console.log("Evento do webhook:", event);
 
-
+    const session = await stripe.checkout.sessions.retrieve(event.data.object.id, {
+      expand: ['line_items'],
+    });  
 
     if (event.type === 'checkout.session.completed') {
-      const session = await stripe.checkout.sessions.retrieve(event.data.object.id, {
-        expand: ['line_items'],
-      });  
+    
 
       if(session.mode === 'payment'){
       const lineItems = session.line_items.data;
