@@ -54,9 +54,13 @@ router.post("/webhook", async (req, res) => {
         res.status(200).send();
     }
     }else if (event.type === 'customer.subscription.updated') {
+      const subscriptionId = event.data.object.subscription;
+      const subscription = await stripe.subscriptions.retrieve(subscriptionId);
       await handleSubscriptionUpdate(subscription);
       res.status(200).send();
     }else if(event.type === 'customer.subscription.deleted') {
+      const subscriptionId = event.data.object.subscription;
+      const subscription = await stripe.subscriptions.retrieve(subscriptionId);
       await handleSubscriptionUpdate(subscription);
       res.status(200).send();
     }
