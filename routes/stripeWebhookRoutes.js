@@ -50,17 +50,22 @@ router.post("/webhook", async (req, res) => {
       const subscriptionId = event.data.object.subscription;
       const subscription = await stripe.subscriptions.retrieve(subscriptionId);
 
-      if (event.type === 'customer.subscription.updated') {
-        await handleSubscriptionUpdate(subscription);
-        res.status(200).send();
-      }else if(event.type === 'customer.subscription.deleted') {
-        await handleSubscriptionUpdate(subscription);
-        res.status(200).send();
-      }
-      else if(event.type === 'customer.subscription.created') {
+      if(event.type === 'customer.subscription.created') {
         await handleSubscriptionCreated(subscription);
         res.status(200).send();
       }
+
+
+    }else if (event.type === 'customer.subscription.updated') {
+      const subscriptionId = eventObject.subscription;
+      const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+      await handleSubscriptionUpdate(subscription);
+      res.status(200).send();
+    }else if(event.type === 'customer.subscription.deleted') {
+      const subscriptionId = eventObject.subscription;
+      const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+      await handleSubscriptionUpdate(subscription);
+      res.status(200).send();
     }
     /*
     } else if (event.type === 'customer.subscription.created') {
