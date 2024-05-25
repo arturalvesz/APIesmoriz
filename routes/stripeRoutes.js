@@ -16,7 +16,7 @@ router.post("/create-checkout-session", async (req, res) => {
 
   const currentDate = new Date().toISOString().split('T')[0]; // Obtém a data atual no formato YYYY-MM-DD
 
-  const query = "SELECT * from socio WHERE user_id = $1 AND ( status = 'active' OR (status = 'cancelled' AND data_expiracao_mensalidade > $2))";
+  const query = "SELECT * from socio WHERE user_id = $1 AND ( estado = 'active' OR (estado = 'cancelled' AND data_expiracao_mensalidade > $2))";
 
   const result = await pool.query(query, [utilizadorId, currentDate]);
 
