@@ -12,27 +12,26 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 router.post("/create-checkout-session", async (req, res) => {
   const {precoNormal, precoSocio, quantidade, bilheteiraId, dataValidade, utilizadorId } = req.body;
 
-  const precoJogo = 0;
+  let precoJogo = 0;
 
   const currentDate = new Date().toISOString().split('T')[0]; // Obtém a data atual no formato YYYY-MM-DD
 
   const query = "SELECT * from socio WHERE user_id = $1 AND ( estado = 'active' OR (estado = 'cancelled' AND data_expiracao_mensalidade > $2))";
 
-  const result = await pool.query(query, [utilizadorId, currentDate]);
-
-  if(result.rowCount > 0){
-    precoJogo = precoSocio;
-  }else{
-    precoJogo = precoNormal;
-  }
-
-  
   var dataV = dataValidade;
   
   dataV = dataV.split("-").reverse().join("-");
 
 
   try {
+
+    const result = await pool.query(query, [utilizadorId, currentDate]);
+
+  if(result.rowCount > 0){
+    precoJogo = precoSocio;
+  }else{
+    precoJogo = precoNormal;
+  }
     // Crie a sessão de checkout no Stripe
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
