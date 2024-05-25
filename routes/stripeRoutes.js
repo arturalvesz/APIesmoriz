@@ -18,7 +18,7 @@ router.post("/create-checkout-session", async (req, res) => {
 
   const query = "SELECT * from socio WHERE user_id = $1 AND ( status = 'active' OR (status = 'cancelled' AND data_expiracao_mensalidade > $2))";
 
-  const result = await pool.query(query, [userId, currentDate]);
+  const result = await pool.query(query, [utilizadorId, currentDate]);
 
   if(result.rowCount > 0){
     precoJogo = precoSocio;
