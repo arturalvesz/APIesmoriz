@@ -10,8 +10,23 @@ require('dotenv').config();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 router.post("/create-checkout-session", async (req, res) => {
-  const {precoNormal, quantidade, bilheteiraId, dataValidade, utilizadorId } = req.body;
+  const {precoNormal, precoSocio, quantidade, bilheteiraId, dataValidade, utilizadorId } = req.body;
 
+  const precoJogo = 0;
+
+  const currentDate = new Date().toISOString().split('T')[0]; // Obtém a data atual no formato YYYY-MM-DD
+
+  const query = "SELECT * from socio WHERE user_id = $1 AND ( status = 'active' OR (status = 'cancelled' AND data_expiracao_mensalidade > $2))";
+
+  const result = await pool.query(query, [userId, currentDate]);
+
+  if(result.rowCount > 0){
+    precoJogo = precoSocio;
+  }else{
+    precoJogo = precoNormal;
+  }
+
+  
   var dataV = dataValidade;
   
   dataV = dataV.split("-").reverse().join("-");
@@ -28,7 +43,7 @@ router.post("/create-checkout-session", async (req, res) => {
             product_data: {
               name: "Jogo",
             },
-            unit_amount: precoNormal * 100,
+            unit_amount: precoJogo * 100,
           },
           quantity: quantidade,
         },

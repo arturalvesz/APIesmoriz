@@ -70,6 +70,35 @@ router.get("/utilizador/:id/:escalaoId", async (req, res) => {
   }
 });
 
+
+//Mostrar bilhetes comprados pelo utilizador nos ultimos 30 minutos
+router.get("/utilizador/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Consulta para obter os bilhetes do utilizador criados nos últimos 30 minutos
+    const bilhetesResult = await pool.query(`
+      SELECT
+        id,
+        bilheteira_id,
+        TO_CHAR(data_compra, 'DD-MM-YYYY HH24:MI:SS') AS data_compra,
+        TO_CHAR(data_validade, 'DD-MM-YYYY') AS data_validade,
+        utilizador_id,
+        validado
+      FROM bilhete
+      WHERE utilizador_id = $1
+        AND data_compra >= NOW() - INTERVAL '30 minutes'
+    `, [id]);
+
+    const bilhetes = bilhetesResult.rows;
+
+    res.json({ bilhetesRecentes: bilhetes });
+  } catch (err) {
+    console.error("Erro ao obter bilhetes do utilizador:", err);
+    res.status(500).json({ error: "Erro ao obter bilhetes do utilizador" });
+  }
+});
+
 // Obter todos os bilhetes
 router.get("/all", async (req, res) => {
   try {
