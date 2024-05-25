@@ -62,7 +62,6 @@ router.post("/create-checkout-session", async (req, res) => {
       },
     });
 
-    // Responder com o ID e URL da sessão de checkout
     res.json({ id: session.id, url: session.url });
   } catch (error) {
     console.error("Erro ao criar sessão de checkout:", error);
@@ -98,6 +97,7 @@ router.post('/cancel-subscription', async (req, res) => {
       cancel_at_period_end: true
     });
 
+    /*
     // Obter utilizadorId a partir dos metadados da subscrição
     const userId = parseInt(subscription.metadata.utilizadorId);
 
@@ -107,7 +107,7 @@ router.post('/cancel-subscription', async (req, res) => {
     // Atualizar o estado na base de dados
     const query = "UPDATE socio SET estado = 'cancelled', data_expiracao_mensalidade = $2 WHERE user_id = $1";
     await pool.query(query, [userId, subscriptionEndDate]);
-
+*/
     // Responder com o resultado da operação
     res.json({ success: true, subscription: deletedSubscription });
   } catch (error) {

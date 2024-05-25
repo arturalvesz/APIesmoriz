@@ -51,13 +51,9 @@ router.post("/webhook", async (req, res) => {
       const subscription = await stripe.subscriptions.retrieve(subscriptionId);
 
       if (event.type === 'customer.subscription.updated') {
-        console.log("current_period_start: ", (subscription.current_period_start * 1000).toLocaleDateString('en-CA'));
-        console.log("current_period_end: ", (subscription.current_period_end * 1000).toLocaleDateString('en-CA'));
         await handleSubscriptionUpdate(subscription);
         res.status(200).send();
       } else {
-        console.log("current_period_start: ", new Date(subscription.current_period_start * 1000).toLocaleDateString('en-CA'));
-        console.log("current_period_end: ", new Date(subscription.current_period_end * 1000).toLocaleDateString('en-CA'));
         await handleSubscriptionCreated(subscription);
         res.status(200).send();
       }
