@@ -16,20 +16,19 @@ router.post("/webhook", async (req, res) => {
     );
     console.log("Evento do webhook:", event);
 
-    const session = await stripe.checkout.sessions.retrieve(event.data.object.id, {
-      expand: ['line_items'],
-    });
+
 
     if (event.type === 'checkout.session.completed') {
+      const session = await stripe.checkout.sessions.retrieve(event.data.object.id, {
+        expand: ['line_items'],
+      });  
 
       if(session.mode === 'payment'){
       const lineItems = session.line_items.data;
 
       const paymentIntentId = event.data.object.payment_intent;
 
-    const paymentIntent = await stripe.paymentIntents.retrieve(
-      paymentIntentId
-    );
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
 
       // Inicializa a quantidade total como 0
       let quantidadeTotal = 0;
@@ -52,6 +51,14 @@ router.post("/webhook", async (req, res) => {
         await handleSubscriptionCreated(subscription);
         res.status(200).send();
       }
+    }
+    else if(event.type === 'customer.subscription.created'){
+      const subscriptionId = event.data.object.subscription;
+      const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+
+      await handleSubscriptionCreated(subscription);
+      res.status(200).send();
+
     }
     else {
       console.log("Tipo de evento não tratado:", event.type);
