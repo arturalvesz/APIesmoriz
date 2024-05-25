@@ -44,7 +44,6 @@ router.post("/webhook", async (req, res) => {
       await criarBilhete(bilheteiraId, dataValidade, quantidadeTotal, new Date(), utilizadorId);
 
       res.status(200).send();
-
     }else if(session.mode === 'subscription'){
 
       const subscriptionId = event.data.object.subscription;
@@ -52,7 +51,7 @@ router.post("/webhook", async (req, res) => {
 
         await handleSubscriptionCreated(subscription);
         res.status(200).send();
-    }
+      }
     }else if (event.type === 'customer.subscription.updated') {
       const subscriptionId = event.data.object.subscription;
       const subscription = await stripe.subscriptions.retrieve(subscriptionId);
