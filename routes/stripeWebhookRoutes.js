@@ -6,6 +6,63 @@ const pool = require("../dbConfig");
 const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 
 router.post("/webhook", async (req, res) => {
+  // ... (signature verification code)
+  const sig = req.headers['stripe-signature'];
+
+  try {
+    const event = stripe.webhooks.constructEvent(
+      req.body, sig, process.env.STRIPE_WEBHOOK_SECRET
+    );
+    console.log("Evento do webhook:", event);
+
+    const session = await stripe.checkout.sessions.retrieve(event.data.object.id, {
+      expand: ['line_items', 'subscription'],
+    });
+
+    if (event.type === 'checkout.session.completed') {
+      // Handle payment and potential subscription creation
+
+      if (session.payment_intent) {
+        const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent);
+
+        // Process payment details (e.g., quantity calculation, ticket creation)
+        const lineItems = session.line_items.data;
+        let quantidadeTotal = 0;
+        lineItems.forEach(item => {
+          quantidadeTotal += item.quantity;
+        });
+        const bilheteiraId = paymentIntent.metadata.bilheteiraId;
+        const dataValidade = paymentIntent.metadata.dataValidade;
+        const utilizadorId = paymentIntent.metadata.utilizadorId;
+        await criarBilhete(bilheteiraId, dataValidade, quantidadeTotal, new Date(), utilizadorId);
+      }
+
+      if (session.subscription) {
+        // Subscription created from checkout session
+        const subscription = session.subscription;
+        await handleSubscriptionCreated(subscription);
+      }
+
+      res.status(200).send();
+    }  else if (event.type === 'customer.subscription.updated') {
+      const subscriptionId = event.data.object.id;
+      const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+
+      // Call your function to handle subscription update logic
+      await handleSubscriptionUpdated(subscription);
+
+      res.status(200).send();
+    }else {
+      console.log("Tipo de evento não tratado:", event.type);
+      res.status(200).send();
+    }
+  } catch (error) {
+    console.error("Erro de verificação do webhook:", error);
+    res.status(400).send(`Erro do Webhook: ${error.message}`);
+  }
+});
+/*
+router.post("/webhook", async (req, res) => {
   // Extrair a signature do stripe do header
   const sig = req.headers['stripe-signature'];
 
@@ -68,7 +125,7 @@ router.post("/webhook", async (req, res) => {
     console.error("Erro de verificação do webhook:", error);
     res.status(400).send(`Erro do Webhook: ${error.message}`);
   }
-});
+});*/
 
 
 // Função para criar um bilhete
