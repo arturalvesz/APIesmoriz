@@ -82,14 +82,14 @@ router.post('/cancel-subscription', async (req, res) => {
     const customerGet = await stripe.customers.retrieve(customer.id, {
       expand: ["subscriptions"],
      });
-     const [subscriptions] = customerGet.subscriptions.data; //subscription id
+     const subscriptions = customerGet.subscriptions.data; //subscription id
 
 
-    if (subscriptions.data.length === 0) {
+     if (subscriptions.length === 0) {
       return res.status(404).json({ error: "Assinatura ativa não encontrada" });
     }
-    const subscription = subscriptions.data[0];
-
+    const subscription = subscriptions[0];
+  
     // Cancelar a assinatura no fim do período atual
     const deletedSubscription = await stripe.subscriptions.update(subscription.id, {
       cancel_at_period_end: true
