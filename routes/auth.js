@@ -69,7 +69,7 @@ router.get('/redirectToReset', (req, res) => {
         return res.status(400).json({ error: 'Token is required' });
     }
 
-    const deepLinkUrl = `esmorizgc://esmorizgc.pt/reset-password?token=${token}`;
+    const deepLinkUrl = `http://esmorizgc.pt/reset-password?token=${token}`;
     res.redirect(deepLinkUrl);
 });
 
