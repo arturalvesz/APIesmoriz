@@ -48,7 +48,10 @@ router.post('/forgot-password', async (req, res) => {
             from: process.env.EMAIL,
             to: email,
             subject: 'Password Reset',
-            text: `Clique no link a seguir para redefinir a palavra passe:\n\n ${deepLinkUrl}`,
+            html: `
+                <p>Click the button below to reset your password:</p>
+                <a href="${deepLinkUrl}"><button>Reset Password</button></a>
+            `,
         };
 
         await transporter.sendMail(mailOptions);
