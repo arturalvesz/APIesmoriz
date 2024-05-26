@@ -42,7 +42,7 @@ router.post('/forgot-password', async (req, res) => {
 
         const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: '1h' });
 
-        const deepLinkUrl = `esmorizgc://esmorizgc.pt/reset-password?token=${token}`;
+        const deepLinkApiUrl = `https://apiesmoriz.onrender.com/redirectToReset?token=${token}`;
 
         const mailOptions = {
             from: process.env.EMAIL,
@@ -50,7 +50,7 @@ router.post('/forgot-password', async (req, res) => {
             subject: 'Password Reset',
             html: `
                 <p>Click the button below to reset your password:</p>
-                <a href="${deepLinkUrl}">Reset Password</a>
+                <a href="${deepLinkApiUrl}">Reset Password</a>
             `,
         };
 
@@ -60,6 +60,15 @@ router.post('/forgot-password', async (req, res) => {
         console.error('Erro ao enviar email de redefinição de senha:', error);
         res.status(500).json({ error: 'Erro ao enviar email de redefinição de senha' });
     }
+});
+
+router.get('/redirectToReset', async(req,res) =>{
+
+    const token = req.query.token;
+    
+    const deepLinkUrl = `esmorizgc://esmorizgc.pt/reset-password?token=${token}`;
+    res.redirect(deepLinkUrl);
+
 });
 
 router.post('/reset-password', async (req, res) => {
