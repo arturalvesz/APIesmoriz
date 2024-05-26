@@ -42,6 +42,7 @@ app.use('/api/bilhetes', bilheteRoutes);
 app.use('/api/stripe', stripeRoutes);
 app.use('/api/stripeSocios', stripeSociosRoutes);
 app.use('/api/auth', auth);
+app.use(express.static(path.join(__dirname, 'public')));
 
 
 

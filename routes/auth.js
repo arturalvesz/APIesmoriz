@@ -42,7 +42,7 @@ router.post('/forgot-password', async (req, res) => {
 
         const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: '1h' });
 
-        const deepLinkApiUrl = `https://apiesmoriz.onrender.com/redirectToReset?token=${token}`;
+        const deepLinkApiUrl = `https://apiesmoriz.onrender.com/index.html?token=${token}`;
 
         const mailOptions = {
             from: process.env.EMAIL,
@@ -60,17 +60,6 @@ router.post('/forgot-password', async (req, res) => {
         console.error('Erro ao enviar email de redefinição de senha:', error);
         res.status(500).json({ error: 'Erro ao enviar email de redefinição de senha' });
     }
-});
-
-router.get('/redirectToReset', (req, res) => {
-    const token = req.query.token;
-
-    if (!token) {
-        return res.status(400).json({ error: 'Token is required' });
-    }
-
-    const deepLinkUrl = `http://esmorizgc.pt/reset-password?token=${token}`;
-    res.redirect(deepLinkUrl);
 });
 
 router.post('/reset-password', async (req, res) => {

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Password</title>
+</head>
+<body>
+    <h1>Password Reset</h1>
+    <p>Click the button below to reset your password:</p>
+    <button onclick="redirectToApp()">Reset Password</button>
+
+    <script>
+        function redirectToApp() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        if (token) {
+            window.location.href = `esmorizgc://esmorizgc.pt/reset-password?token=${token}`;
+        } else {
+            console.error('Token not found in URL');
+        }
+    }
+    </script>
+</body>
+</html>
