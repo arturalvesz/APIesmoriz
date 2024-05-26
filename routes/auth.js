@@ -62,13 +62,15 @@ router.post('/forgot-password', async (req, res) => {
     }
 });
 
-router.get('/redirectToReset', async(req,res) =>{
-
+router.get('/redirectToReset', (req, res) => {
     const token = req.query.token;
-    
-    const deepLinkUrl = `google.com`;
-    res.redirect(deepLinkUrl);
 
+    if (!token) {
+        return res.status(400).json({ error: 'Token is required' });
+    }
+
+    const deepLinkUrl = `esmorizgc://esmorizgc.pt/reset-password?token=${token}`;
+    res.redirect(deepLinkUrl);
 });
 
 router.post('/reset-password', async (req, res) => {
