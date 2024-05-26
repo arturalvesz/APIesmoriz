@@ -42,17 +42,16 @@ router.post('/forgot-password', async (req, res) => {
 
         const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: '1h' });
 
-        const deepLinkUrl = `esmorizgc://esmorizgc.pt/reset-password?token=${token}`;
-
         const mailOptions = {
             from: process.env.EMAIL,
             to: email,
             subject: 'Password Reset',
-            text: `Clique no link a seguir para redefinir a palavra passe:\n\n ${deepLinkUrl}`,
+            html: `<p>Click the link below to reset your password:</p>
+            <a href="esmorizgc://esmorizgc.pt/reset-password?token=${token}">Reset Password</a>`,
         };
 
         await transporter.sendMail(mailOptions);
-        res.status(200).json({ message: 'Email de redefinição de senha enviado' });
+        res.status(200).json({ message: 'Email de redefinição de senha enviado', forgotPassword: token });
     } catch (error) {
         console.error('Erro ao enviar email de redefinição de senha:', error);
         res.status(500).json({ error: 'Erro ao enviar email de redefinição de senha' });
@@ -60,8 +59,7 @@ router.post('/forgot-password', async (req, res) => {
 });
 
 router.post('/reset-password', async (req, res) => {
-    const { newPassword } = req.body;
-    const token = req.query.token;
+    const { newPassword, token } = req.body;
     console.log('Token recebido:', token);
 
     try {
