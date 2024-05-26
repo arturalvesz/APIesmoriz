@@ -62,7 +62,7 @@ router.post('/forgot-password', async (req, res) => {
     }
 });
 
-router.post('/redirectToReset', async(req,res) =>{
+router.get('/redirectToReset', async(req,res) =>{
 
     const token = req.query.token;
     
