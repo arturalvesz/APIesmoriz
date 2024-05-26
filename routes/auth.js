@@ -48,7 +48,7 @@ router.post('/forgot-password', async (req, res) => {
             from: process.env.EMAIL,
             to: email,
             subject: 'Password Reset',
-            text: `Clique no link a seguir para redefinir sua senha:\n\n ${deepLinkUrl}`,
+            text: `Clique no link a seguir para redefinir a palavra passe:\n\n ${deepLinkUrl}`,
         };
 
         await transporter.sendMail(mailOptions);
@@ -62,6 +62,7 @@ router.post('/forgot-password', async (req, res) => {
 router.post('/reset-password', async (req, res) => {
     const { newPassword } = req.body;
     const token = req.query.token;
+    console.log('Token recebido:', token);
 
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
