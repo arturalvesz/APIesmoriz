@@ -74,6 +74,21 @@ router.post('/reset-password', async (req, res) => {
             return res.status(400).send('Password must meet complexity requirements');
         }
 
+        // Consultar a senha antiga do banco de dados
+        const userResult = await pool.query('SELECT password FROM utilizador WHERE email = $1', [decoded.email]);
+        if (userResult.rows.length === 0) {
+            return res.status(404).json({ error: 'Usuário não encontrado' });
+        }
+
+        const oldPasswordHash = userResult.rows[0].password;
+
+        // Comparar a senha antiga com a nova
+        const isSamePassword = await bcrypt.compare(newPassword, oldPasswordHash);
+        if (isSamePassword) {
+            return res.status(400).json({ error: 'A nova senha não pode ser igual à antiga' });
+        }
+
+        // Hash da nova senha e atualização no banco de dados
         const hashedPassword = await bcrypt.hash(newPassword, 10);
         const result = await pool.query('UPDATE utilizador SET password = $1 WHERE email = $2 RETURNING *', [hashedPassword, decoded.email]);
 

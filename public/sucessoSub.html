@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redefinir Senha</title>
+    <title>Sucesso</title>
     <style>
         body {
             display: flex;
@@ -30,7 +30,7 @@
             color: #666;
         }
         button {
-            background-color: #007bff;
+            background-color: #28a745;
             color: white;
             border: none;
             padding: 15px 30px;
@@ -40,26 +40,20 @@
             transition: background-color 0.3s ease;
         }
         button:hover {
-            background-color: #0056b3;
+            background-color: #218838;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Redefinir Senha</h1>
-        <p>Clique no botão abaixo para redefinir sua senha:</p>
-        <button onclick="redirectToApp()">Redefinir Senha</button>
+        <h1>Sucesso</h1>
+        <p>A sua subscrição foi bem sucedida. Retorne para a app para usufruir das vantagens de sócio</p>
+        <button onclick="redirectToApp()">Retornar para App</button>
     </div>
 
     <script>
         function redirectToApp() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const token = urlParams.get('token');
-            if (token) {
-                window.location.href = `esmorizgc://esmorizgc.pt/reset-password?token=${token}`;
-            } else {
-                console.error('Token não encontrado na URL');
-            }
+            window.location.href = 'esmorizgc://esmorizgc.pt/perfilSocio';
         }
     </script>
 </body>

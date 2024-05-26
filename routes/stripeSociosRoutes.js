@@ -52,7 +52,7 @@ router.post("/create-checkout-session", async (req, res) => {
       ],
       mode: "subscription",
       success_url: "https://esmorizgc.pt",
-      cancel_url: "https://esmorizgc.pt",
+      cancel_url: "https://apiesmoriz.onrender.com/cancel.html",
 
       subscription_data: {
         metadata: {
