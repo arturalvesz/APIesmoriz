@@ -46,8 +46,8 @@ router.post('/forgot-password', async (req, res) => {
             from: process.env.EMAIL,
             to: email,
             subject: 'Password Reset',
-            html: `<p>Click the link below to reset your password:</p>
-            <a href="esmorizgc://esmorizgc.pt/reset-password?token=${token}">Reset Password</a>`,
+            text: `Para redefinir sua senha, clique no link abaixo:\n\n${deepLinkUrl}`
+
         };
 
         await transporter.sendMail(mailOptions);
