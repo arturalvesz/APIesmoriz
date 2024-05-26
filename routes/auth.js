@@ -50,7 +50,7 @@ router.post('/forgot-password', async (req, res) => {
             subject: 'Password Reset',
             html: `
                 <p>Click the button below to reset your password:</p>
-                <a href="${deepLinkUrl}"><button>Reset Password</button></a>
+                <a href="${deepLinkUrl}">Reset Password</a>
             `,
         };
 
