@@ -4,6 +4,7 @@ const express = require('express');
 const app = express();
 const pool = require('./dbConfig');
 const PORT = 3000;
+const path = require('path');
 
 
 const atletaRoutes = require('./routes/atletaRoutes');
