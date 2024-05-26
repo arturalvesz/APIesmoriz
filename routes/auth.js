@@ -5,10 +5,19 @@ const router = express.Router();
 const pool = require("../dbConfig");
 require('dotenv').config(); 
 const JWT_SECRET = process.env.JWT_SECRET_KEY;
+const nodemailer = require('nodemailer');
 
 
 // Expressão regular para validação de senha
 const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+const transporter = nodemailer.createTransport({
+    service: 'Gmail',
+    auth: {
+      user: process.env.EMAIL,
+      pass: process.env.EMAIL_PASSWORD,
+    },
+  });
 
 // Middleware para verificar token
 function authenticateToken(req, res, next) {
@@ -22,6 +31,59 @@ function authenticateToken(req, res, next) {
         next();
     });
 }
+
+router.post('/forgot-password', async (req, res) => {
+    const { email } = req.body;
+    try {
+        const userResult = await pool.query('SELECT * FROM utilizador WHERE email = $1', [email]);
+        if (userResult.rows.length === 0) {
+            return res.status(404).json({ error: 'Usuário não encontrado' });
+        }
+
+        const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: '1h' });
+
+        const deepLinkUrl = `esmorizgc://esmorizgc.pt/reset-password?token=${token}`;
+
+        const mailOptions = {
+            from: process.env.EMAIL,
+            to: email,
+            subject: 'Password Reset',
+            text: `Clique no link a seguir para redefinir sua senha:\n\n ${deepLinkUrl}`,
+        };
+
+        await transporter.sendMail(mailOptions);
+        res.status(200).json({ message: 'Email de redefinição de senha enviado' });
+    } catch (error) {
+        console.error('Erro ao enviar email de redefinição de senha:', error);
+        res.status(500).json({ error: 'Erro ao enviar email de redefinição de senha' });
+    }
+});
+
+router.post('/reset-password', async (req, res) => {
+    const { newPassword } = req.body;
+    const token = req.query.token;
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+
+        // Verificar a complexidade da senha
+        if (!passwordRegex.test(newPassword)) {
+            return res.status(400).send('Password must meet complexity requirements');
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        const result = await pool.query('UPDATE utilizador SET password = $1 WHERE email = $2 RETURNING *', [hashedPassword, decoded.email]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Usuário não encontrado' });
+        }
+
+        res.status(200).json({ message: 'Senha redefinida com sucesso' });
+    } catch (error) {
+        console.error('Erro ao redefinir senha:', error);
+        res.status(500).json({ error: 'Token inválido ou expirado' });
+    }
+});
 
 // Rota para registo de usuário
 router.post('/registo', async (req, res) => {
