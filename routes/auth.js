@@ -66,7 +66,7 @@ router.post('/redirectToReset', async(req,res) =>{
 
     const token = req.query.token;
     
-    const deepLinkUrl = `esmorizgc://esmorizgc.pt/reset-password?token=${token}`;
+    const deepLinkUrl = `google.com`;
     res.redirect(deepLinkUrl);
 
 });
