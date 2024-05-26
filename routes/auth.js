@@ -51,7 +51,7 @@ router.post('/forgot-password', async (req, res) => {
         };
 
         await transporter.sendMail(mailOptions);
-        res.status(200).json({ message: 'Email de redefinição de senha enviado', forgotPassword: token });
+        res.status(200).json({ message: 'Email de redefinição de senha enviado', forgotPasswordToken: token });
     } catch (error) {
         console.error('Erro ao enviar email de redefinição de senha:', error);
         res.status(500).json({ error: 'Erro ao enviar email de redefinição de senha' });
