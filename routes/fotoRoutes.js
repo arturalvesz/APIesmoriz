@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../dbConfig');
 
-import {v2 as cloudinary} from 'cloudinary';
+const cloudinary = require('cloudinary').v2;
           
 cloudinary.config({ 
   cloud_name: 'dsy8o6tn7', 
