@@ -3,27 +3,31 @@ const router = express.Router();
 const pool = require('../dbConfig');
 const imgur = require('imgur');
 
-const clientId = 'fbf90246f87779c';
-const clientSecret = 'db75092fab64051f17380838ea97f3a3d590c3d5';
-
-imgur.setAPIUrl('https://api.imgur.com/3/');
-imgur.setCredentials(clientId, clientSecret);
-
 router.post('/novo', async (req, res) => {
   try {
     const { evento_id, noticia_id, patrocinador_id } = req.body;
-    const image = req.files.foto; 
-    if (!image) {
-      return res.status(400).json({ error: 'Imagem obrigatória' }); 
+
+    // Image handling with optional temporary storage
+    let imageStream;
+    if (req.files && req.files.foto) {
+      imageStream = req.files.foto.data; // Access the image data stream
+    } else {
+      return res.status(400).json({ error: 'Imagem obrigatória' });
     }
 
-    const uploadedImage = await imgur.upload(`uploads/${image.name}`, {
-      name: image.name,
-      type: image.mimetype,
+    // Imgur API Client with credentials from environment variables
+    imgur.setAPIKey(process.env.IMGUR_CLIENT_ID);
+    imgur.setAPISecret(process.env.IMGUR_CLIENT_SECRET);
+
+    // Upload the image to Imgur
+    const uploadedImage = await imgur.uploadImage(imageStream, {
+      name: req.files.foto.name, // Optional: Set image name
+      type: req.files.foto.mimetype, // Optional: Set image type
     });
 
     const imageUrl = uploadedImage.data.link;
 
+    // Database insertion with the uploaded image URL
     const novaFoto = await pool.query(
       'INSERT INTO foto (path, evento_id, noticia_id, patrocinador_id) VALUES ($1, $2, $3, $4) RETURNING *',
       [imageUrl, noticia_id || null, evento_id || null, patrocinador_id || null]
@@ -31,7 +35,7 @@ router.post('/novo', async (req, res) => {
 
     res.json(novaFoto.rows[0]);
   } catch (err) {
-    console.log('Erro ao criar foto:', err);
+    console.error('Erro ao criar foto:', err);
     res.status(500).json({ error: 'Erro ao criar foto' });
   }
 });
