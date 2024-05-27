@@ -10,31 +10,35 @@ cloudinary.config({
   api_secret: 'Wlbjy2udigy1NfjLwX__SRPY2pc' 
 });
 
+// Multer storage configuration using Cloudinary
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    allowed_formats: ['jpg', 'png']
+  }
+});
+
+const upload = multer({ storage: storage });
+
 // Criar uma nova foto
-router.post('/novo', async (req, res) => {
+router.post('/novo', upload.single('file'), async (req, res) => {
   try {
-    // Check if a file is uploaded
-    if (!req.files || Object.keys(req.files).length === 0) {
-      return res.status(400).json({ error: 'Nenhuma foto enviada' });
+    const { evento_id, noticia_id, patrocinador_id } = req.body;
+    const file = req.file;
+
+    if (!file) {
+      return res.status(400).json({ error: 'File not uploaded' });
     }
 
-    // Get the uploaded file from the request
-    const { file } = req.files;
+    // The file path in Cloudinary
+    const imageUrl = file.path;
 
-    // Upload the file to Cloudinary
-    const uploadedPhoto = await cloudinary.uploader.upload(file.tempFilePath);
-
-    // Extract the photo URL from the Cloudinary response
-    const { secure_url: photoUrl, public_id: cloudinaryId } = uploadedPhoto;
-
-    // Store the photo URL and associated data in the database
-    const { evento_id, noticia_id, patrocinador_id } = req.body;
+    // Insert the image URL into the database
     const novaFoto = await pool.query(
       'INSERT INTO foto (path, evento_id, noticia_id, patrocinador_id) VALUES ($1, $2, $3, $4) RETURNING *',
-      [photoUrl, evento_id || null, noticia_id || null, patrocinador_id || null]
+      [imageUrl, noticia_id || null, evento_id || null, patrocinador_id || null]
     );
 
-    // Return the newly created photo
     res.json(novaFoto.rows[0]);
   } catch (err) {
     console.error('Erro ao criar foto:', err);
