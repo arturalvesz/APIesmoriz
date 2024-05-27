@@ -11,48 +11,28 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const upload = multer({
-  limits: { fileSize: 5000000 },
-  fileFilter: async (req, file, cb) => {
-    const allowedExtensions = ['.png', '.jpg', '.jpeg'];
-    const originalname = file.originalname.toLowerCase(); 
 
-    if (allowedExtensions.some(ext => originalname.endsWith(ext))) {
-      cb(null, true); 
-    } else {
-      cb(new Error('Only PNG, JPG, and JPEG images are allowed')); 
-    }
-  },
-});
-
-router.post('/upload', upload.single('image'), async (req, res) => {
+router.post('/upload', async (req, res) => {
   try {
-    const image = req.file;
+    const image = req.files?.image; // Assuming image is sent using 'image' field name
 
     if (!image) {
       return res.status(400).json({ error: 'No image uploaded' });
     }
 
-    const result = await cloudinary.uploader.upload(image.path);
+    const result = await cloudinary.uploader.upload(image.data);
 
-    const imageUrl = result.secure_url;
+    // Use the upload result (e.g., secure_url) for further processing
+    console.log('Image uploaded successfully:', result.secure_url);
 
-    const insertQuery = 'INSERT INTO foto (path) VALUES ($1) RETURNING *';
-    const values = [imageUrl];
-
-    const client = await pool.connect();
-    try {
-      const insertResult = await client.query(insertQuery, values);
-      const insertedFoto = insertResult.rows[0]; 
-      res.json({ message: 'Image uploaded successfully!', uploadedFoto: insertedFoto });
-    } finally {
-      await client.release(); 
-    }
+    res.status(201).json({ message: 'Image uploaded successfully!', data: result }); // Send success response with data (optional)
   } catch (err) {
-    console.error('Error uploading image or inserting into database:', err);
+    console.error('Error uploading image:', err);
     res.status(500).json({ error: 'Failed to upload image' });
   }
 });
+
+
 // Obter todas as fotos
 router.get('/all', async (req, res) => {
   try {
