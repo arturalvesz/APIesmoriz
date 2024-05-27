@@ -12,27 +12,27 @@ cloudinary.config({
 });
 
 
+
 router.post('/upload', async (req, res) => {
   try {
-    const image = req.files?.image; // Assuming image is sent using 'image' field name
+    const image = "C:\\Users\\Utilizador\\Desktop\\APIesmoriz\\public\\uploads\\patrocinador\\esmorizgc_01.jpg";
 
     if (!image) {
       return res.status(400).json({ error: 'No image uploaded' });
     }
 
-    const result = await cloudinary.uploader.upload(image.data);
+    const result = await cloudinary.uploader.upload(image);
 
-    // Use the upload result (e.g., secure_url) for further processing
-    console.log('Image uploaded successfully:', result.secure_url);
+    const imageUrl = result.secure_url;
 
-    res.status(201).json({ message: 'Image uploaded successfully!', data: result }); // Send success response with data (optional)
+    const insertQuery = 'INSERT INTO foto (path) VALUES ($1) RETURNING *';
+    const values = [imageUrl];
+    
   } catch (err) {
-    console.error('Error uploading image:', err);
+    console.error('Error uploading image or inserting into database:', err);
     res.status(500).json({ error: 'Failed to upload image' });
   }
 });
-
-
 // Obter todas as fotos
 router.get('/all', async (req, res) => {
   try {
