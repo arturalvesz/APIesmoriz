@@ -3,6 +3,12 @@ const router = express.Router();
 const pool = require('../dbConfig');
 const imgur = require('imgur');
 
+const clientId = 'fbf90246f87779c';
+const clientSecret = 'db75092fab64051f17380838ea97f3a3d590c3d5';
+
+imgur.setAPIUrl('https://api.imgur.com/3/');
+imgur.setCredentials(clientId, clientSecret);
+
 router.post('/novo', async (req, res) => {
   try {
     const { evento_id, noticia_id, patrocinador_id } = req.body;
