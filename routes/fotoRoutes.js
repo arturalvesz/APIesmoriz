@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../dbConfig');
 const multer = require('multer');
+const mime = require('mime');
 
 const cloudinary = require('cloudinary').v2;
 
@@ -15,16 +16,15 @@ const upload = multer({
   limits: { fileSize: 5000000 },
   fileFilter: (req, file, cb) => {
     const allowedExtensions = ['.png', '.jpg', '.jpeg'];
-    const parts = file.originalname.split('.');
-    const extension = parts[parts.length - 1].toLowerCase();
-    if (allowedExtensions.includes(extension)) {
+    const extension = mime.getExtension(file.mimetype); // Get extension from MIME type
+
+    if (extension && allowedExtensions.includes(extension.toLowerCase())) {
       cb(null, true);
     } else {
       cb(new Error('Only PNG, JPG, and JPEG images are allowed'));
     }
   },
 });
-
 
 router.post('/upload', upload.single('image'), async (req, res) => {
   try {
