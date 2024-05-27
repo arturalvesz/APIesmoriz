@@ -23,17 +23,16 @@ const storage = new CloudinaryStorage({
 const upload = multer({ storage: storage });
 
 // Criar uma nova foto
-router.post('/novo', upload.single('file'), async (req, res) => {
+// Criar uma nova foto e fazer upload para Cloudinary
+router.post('/novo', async (req, res) => {
   try {
-    const { evento_id, noticia_id, patrocinador_id } = req.body;
-    const file = req.file;
+    const {evento_id, noticia_id, patrocinador_id } = req.body;
 
-    if (!file) {
-      return res.status(400).json({ error: 'File not uploaded' });
-    }
+    // Upload file to Cloudinary
+    const result = await cloudinary.uploader.upload(path);
 
-    // The file path in Cloudinary
-    const imageUrl = file.path;
+    // Get the URL of the uploaded image
+    const imageUrl = result.secure_url;
 
     // Insert the image URL into the database
     const novaFoto = await pool.query(
@@ -43,10 +42,11 @@ router.post('/novo', upload.single('file'), async (req, res) => {
 
     res.json(novaFoto.rows[0]);
   } catch (err) {
-    console.error('Erro ao criar foto:', err);
+    console.log('Erro ao criar foto:', err);
     res.status(500).json({ error: 'Erro ao criar foto' });
   }
 });
+
 
 // Obter todas as fotos
 router.get('/all', async (req, res) => {
