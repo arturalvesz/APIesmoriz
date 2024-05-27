@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../dbConfig');
-const imgur = require('imgur');
 const multer = require('multer');
 
 const cloudinary = require('cloudinary').v2;
@@ -13,10 +12,11 @@ cloudinary.config({
 });
 
 const upload = multer({
-  limits: { fileSize: 5000000 }, // Set a limit for image size (5MB in this example)
+  limits: { fileSize: 5000000 },
   fileFilter: (req, file, cb) => {
     const allowedExtensions = ['.png', '.jpg', '.jpeg'];
-    const extension = path.extname(file.originalname).toLowerCase();
+    const parts = file.originalname.split('.');
+    const extension = parts[parts.length - 1].toLowerCase();
     if (allowedExtensions.includes(extension)) {
       cb(null, true);
     } else {
@@ -24,6 +24,7 @@ const upload = multer({
     }
   },
 });
+
 
 router.post('/upload', upload.single('image'), async (req, res) => {
   try {
