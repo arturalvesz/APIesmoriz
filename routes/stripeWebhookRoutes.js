@@ -131,7 +131,7 @@ async function criarBilhete(bilheteiraId, dataValidade, quantidade, dataCompra, 
     const values = [bilheteiraIdInt, dataValidade, dataCompra, utilizadorIdInt];
 
     // Obtém o ID do bilhete criado
-    const bilheteId = bilheteQuery.rows[0].id;
+    const bilheteId = query.rows[0].id;
 
     // Cria o código QR usando informações do bilhete
     const codigoqr = `${bilheteId}${dataValidade}${utilizadorIdInt}`;

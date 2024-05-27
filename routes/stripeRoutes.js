@@ -48,7 +48,7 @@ router.post("/create-checkout-session", async (req, res) => {
         },
       ],
       mode: "payment",
-      success_url: "https://apiesmoriz.onrender.com/successo.html",
+      success_url: "https://apiesmoriz.onrender.com/sucesso.html",
       cancel_url: "https://apiesmoriz.onrender.com/cancel.html", 
 
       payment_intent_data: {
