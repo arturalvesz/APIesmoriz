@@ -9,7 +9,7 @@ router.post('/novo', async (req, res) => {
 
     // Image handling with optional temporary storage
     let imageStream;
-    if (req.files && req.files.foto) {
+    if (req.files.foto) {
       imageStream = req.files.foto.data; // Access the image data stream
     } else {
       return res.status(400).json({ error: 'Imagem obrigatória' });
