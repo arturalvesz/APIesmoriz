@@ -5,14 +5,12 @@ const imgur = require('imgur');
 
 router.post('/novo', async (req, res) => {
   try {
-    const { evento_id, noticia_id, patrocinador_id } = req.body;
-
     // Check if image is provided
-    if (!req.file || !req.file.foto) {
+    if (!req.files || !req.files.foto) {
       return res.status(400).json({ error: 'Imagem obrigatória' });
     }
 
-    const imageStream = req.file.foto.data;
+    const imageStream = req.files.foto.data;
 
     imgur.setAPIKey(process.env.IMGUR_CLIENT_ID);
     imgur.setAPISecret(process.env.IMGUR_CLIENT_SECRET);
@@ -24,8 +22,8 @@ router.post('/novo', async (req, res) => {
 
     // Database insertion with the uploaded image URL
     const novaFoto = await pool.query(
-      'INSERT INTO foto (path, evento_id, noticia_id, patrocinador_id) VALUES ($1, $2, $3, $4) RETURNING *',
-      [imageUrl, noticia_id || null, evento_id || null, patrocinador_id || null]
+      'INSERT INTO foto (path) VALUES ($1) RETURNING *',
+      [imageUrl]
     );
 
     res.json(novaFoto.rows[0]);
