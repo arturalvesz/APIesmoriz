@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../dbConfig');
 const imgur = require('imgur');
+const multer = require('multer');
 
 const cloudinary = require('cloudinary').v2;
 
