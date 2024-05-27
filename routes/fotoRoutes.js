@@ -1,40 +1,23 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../dbConfig');
+const imgur = require('imgur');
 
-const cloudinary = require('cloudinary').v2;
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
-
-          
-cloudinary.config({ 
-  cloud_name: 'dsy8o6tn7', 
-  api_key: '519515781627635', 
-  api_secret: 'Wlbjy2udigy1NfjLwX__SRPY2pc' 
-});
-
-// Multer storage configuration using Cloudinary
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    allowed_formats: ['jpg', 'png']
-  }
-});
-
-const upload = multer({ storage: storage });
-
-// Criar uma nova foto
-// Criar uma nova foto e fazer upload para Cloudinary
 router.post('/novo', async (req, res) => {
   try {
-    const {evento_id, noticia_id, patrocinador_id } = req.body;
+    const { evento_id, noticia_id, patrocinador_id } = req.body;
+    const image = req.files.foto; 
+    if (!image) {
+      return res.status(400).json({ error: 'Imagem obrigatória' }); 
+    }
 
-    // Upload file to Cloudinary
-    const result = await cloudinary.uploader.upload(path);
+    const uploadedImage = await imgur.upload(`uploads/${image.name}`, {
+      name: image.name,
+      type: image.mimetype,
+    });
 
-    // Get the URL of the uploaded image
-    const imageUrl = result.secure_url;
+    const imageUrl = uploadedImage.data.link;
 
-    // Insert the image URL into the database
     const novaFoto = await pool.query(
       'INSERT INTO foto (path, evento_id, noticia_id, patrocinador_id) VALUES ($1, $2, $3, $4) RETURNING *',
       [imageUrl, noticia_id || null, evento_id || null, patrocinador_id || null]
@@ -46,7 +29,6 @@ router.post('/novo', async (req, res) => {
     res.status(500).json({ error: 'Erro ao criar foto' });
   }
 });
-
 
 // Obter todas as fotos
 router.get('/all', async (req, res) => {
