@@ -3,6 +3,8 @@ const router = express.Router();
 const pool = require('../dbConfig');
 
 const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+
           
 cloudinary.config({ 
   cloud_name: 'dsy8o6tn7', 
