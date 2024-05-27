@@ -8,7 +8,7 @@ router.post('/novo', async (req, res) => {
     const { evento_id, noticia_id, patrocinador_id } = req.body;
 
     // Check if image is provided
-    if (!req.files || !req.files.foto) {
+    if (!req.file || !req.file.foto) {
       return res.status(400).json({ error: 'Imagem obrigatória' });
     }
 
