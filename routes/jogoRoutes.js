@@ -83,7 +83,7 @@ router.get('/jogo/:bilheteira_id', async (req, res) => {
     }
 
     // Retorna os dados do jogo
-    res.json({ jogo: jogoQuery.rows[0] });
+    res.json({ jogoBilheteira: jogoQuery.rows[0] });
   } catch (err) {
     console.error('Erro ao obter jogo pelo ID da bilheteira:', err);
     res.status(500).json({ error: 'Erro ao obter jogo pelo ID da bilheteira' });
