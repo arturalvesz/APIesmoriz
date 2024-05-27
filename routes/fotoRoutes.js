@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../dbConfig');
 const multer = require('multer');
-const mime = require('mime');
 
 const cloudinary = require('cloudinary').v2;
 
