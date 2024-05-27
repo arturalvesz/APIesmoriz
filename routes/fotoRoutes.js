@@ -5,10 +5,10 @@ const pool = require('../dbConfig');
 // Criar uma nova foto
 router.post('/novo', async (req, res) => {
   try {
-    const { path, atleta_id, patrocinador_id } = req.body;
+    const { path, evento_id,noticia_id, patrocinador_id } = req.body;
     const novaFoto = await pool.query(
       'INSERT INTO foto (path, atleta_id, patrocinador_id) VALUES ($1, $2, $3) RETURNING *',
-      [path, atleta_id || null, patrocinador_id || null]
+      [path, noticia_id || null,evento_id || null, patrocinador_id || null]
     );
     res.json(novaFoto.rows[0]);
   } catch (err) {
@@ -37,6 +37,22 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Foto não encontrada' });
     }
     res.json(foto.rows[0]);
+  } catch (err) {
+    console.error('Erro ao obter foto pelo ID:', err);
+    res.status(500).json({ error: 'Erro ao obter foto pelo ID' });
+  }
+});
+
+// Obter uma única foto pelo ID
+router.get('/patrocinador/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const foto = await pool.query('SELECT path FROM foto WHERE patrocinador_id = $1', [id]);
+    if (foto.rows.length === 0) {
+      return res.status(404).json({ error: 'Foto não encontrada' });
+    }
+    const filename = foto.rows[0].path; 
+    res.json({ patrocinadorPath: filename });
   } catch (err) {
     console.error('Erro ao obter foto pelo ID:', err);
     res.status(500).json({ error: 'Erro ao obter foto pelo ID' });
