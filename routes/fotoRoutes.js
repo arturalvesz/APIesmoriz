@@ -14,53 +14,46 @@ cloudinary.config({
 
 const upload = multer({
   limits: { fileSize: 5000000 },
-  fileFilter: (req, file, cb) => {
+  fileFilter: async (req, file, cb) => {
     const allowedExtensions = ['.png', '.jpg', '.jpeg'];
-    const extension = mime.getExtension(file.mimetype); // Get extension from MIME type
+    const originalname = file.originalname.toLowerCase(); 
 
-    if (extension && allowedExtensions.includes(extension.toLowerCase())) {
-      cb(null, true);
+    if (allowedExtensions.some(ext => originalname.endsWith(ext))) {
+      cb(null, true); 
     } else {
-      cb(new Error('Only PNG, JPG, and JPEG images are allowed'));
+      cb(new Error('Only PNG, JPG, and JPEG images are allowed')); 
     }
   },
 });
 
 router.post('/upload', upload.single('image'), async (req, res) => {
   try {
-    // Access the uploaded image
     const image = req.file;
 
     if (!image) {
       return res.status(400).json({ error: 'No image uploaded' });
     }
 
-    // Upload the image to Cloudinary
     const result = await cloudinary.uploader.upload(image.path);
 
-    // Access the uploaded image URL
     const imageUrl = result.secure_url;
 
-    // Database insertion using a prepared statement (adjust based on your database system)
     const insertQuery = 'INSERT INTO foto (path) VALUES ($1) RETURNING *';
     const values = [imageUrl];
 
-    const client = await pool.connect(); // Establish a connection to the database
-
+    const client = await pool.connect();
     try {
       const insertResult = await client.query(insertQuery, values);
-      const insertedFoto = insertResult.rows[0]; // Access the inserted row
-
+      const insertedFoto = insertResult.rows[0]; 
       res.json({ message: 'Image uploaded successfully!', uploadedFoto: insertedFoto });
     } finally {
-      await client.release(); // Release the database connection
+      await client.release(); 
     }
   } catch (err) {
     console.error('Error uploading image or inserting into database:', err);
     res.status(500).json({ error: 'Failed to upload image' });
   }
 });
-
 // Obter todas as fotos
 router.get('/all', async (req, res) => {
   try {
