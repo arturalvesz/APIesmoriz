@@ -54,6 +54,43 @@ router.get('/all/:escalao_id', async (req, res) => {
   }
 });
 
+router.get('/jogo/:bilheteira_id', async (req, res) => {
+  try {
+    const { bilheteira_id } = req.params;
+
+    // Consulta para obter o jogo_id associado à bilheteira_id fornecida
+    const jogoIdQuery = await pool.query(
+      "SELECT jogo_id FROM bilhete WHERE bilheteira_id = $1 LIMIT 1",
+      [bilheteira_id]
+    );
+
+    // Verifica se a consulta retornou algum resultado
+    if (jogoIdQuery.rows.length === 0) {
+      return res.status(404).json({ error: 'Nenhum jogo encontrado para a bilheteira fornecida' });
+    }
+
+    const jogo_id = jogoIdQuery.rows[0].jogo_id;
+
+    // Consulta para obter os dados do jogo com base no jogo_id recuperado
+    const jogoQuery = await pool.query(
+      "SELECT id, to_char(data, 'DD-MM-YYYY') AS data, to_char(hora, 'HH24:MI') AS hora, equipa_casa, escalao_id, resultado_casa, equipa_fora, resultado_fora, localizacao, competicao, jogo_acabou FROM Jogo WHERE id = $1",
+      [jogo_id]
+    );
+
+    // Verifica se a consulta retornou algum resultado
+    if (jogoQuery.rows.length === 0) {
+      return res.status(404).json({ error: 'Jogo não encontrado' });
+    }
+
+    // Retorna os dados do jogo
+    res.json({ jogo: jogoQuery.rows[0] });
+  } catch (err) {
+    console.error('Erro ao obter jogo pelo ID da bilheteira:', err);
+    res.status(500).json({ error: 'Erro ao obter jogo pelo ID da bilheteira' });
+  }
+});
+
+
 router.get('/:escalao_id/:jogo_id', async (req, res) => {
   try {
     const { escalao_id, jogo_id } = req.params;
