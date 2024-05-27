@@ -60,7 +60,7 @@ router.get('/jogo/:bilheteira_id', async (req, res) => {
 
     // Consulta para obter o jogo_id associado à bilheteira_id fornecida
     const jogoIdQuery = await pool.query(
-      "SELECT jogo_id FROM bilhete WHERE bilheteira_id = $1 LIMIT 1",
+      "SELECT jogo_id FROM bilheteira WHERE id = $1",
       [bilheteira_id]
     );
 
