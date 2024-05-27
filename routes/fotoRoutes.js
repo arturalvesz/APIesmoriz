@@ -7,23 +7,18 @@ router.post('/novo', async (req, res) => {
   try {
     const { evento_id, noticia_id, patrocinador_id } = req.body;
 
-    // Image handling with optional temporary storage
-    let imageStream;
-    if (req.files.foto) {
-      imageStream = req.files.foto.data; // Access the image data stream
-    } else {
+    // Check if image is provided
+    if (!req.files || !req.files.foto) {
       return res.status(400).json({ error: 'Imagem obrigatória' });
     }
 
-    // Imgur API Client with credentials from environment variables
+    const imageStream = req.files.foto.data;
+
     imgur.setAPIKey(process.env.IMGUR_CLIENT_ID);
     imgur.setAPISecret(process.env.IMGUR_CLIENT_SECRET);
 
-    // Upload the image to Imgur
-    const uploadedImage = await imgur.uploadImage(imageStream, {
-      name: req.files.foto.name, // Optional: Set image name
-      type: req.files.foto.mimetype, // Optional: Set image type
-    });
+    // Upload image to Imgur
+    const uploadedImage = await imgur.uploadImage(imageStream, {});
 
     const imageUrl = uploadedImage.data.link;
 
