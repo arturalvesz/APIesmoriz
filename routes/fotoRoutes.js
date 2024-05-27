@@ -12,7 +12,7 @@ router.post('/novo', async (req, res) => {
       return res.status(400).json({ error: 'Imagem obrigatória' });
     }
 
-    const imageStream = req.files.foto.data;
+    const imageStream = req.file.foto.data;
 
     imgur.setAPIKey(process.env.IMGUR_CLIENT_ID);
     imgur.setAPISecret(process.env.IMGUR_CLIENT_SECRET);
