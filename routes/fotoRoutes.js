@@ -2,21 +2,25 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../dbConfig');
 const imgur = require('imgur');
+const multer = require('multer');
 
-router.post('/novo', async (req, res) => {
+// Multer configuration for handling file uploads
+const upload = multer({ dest: 'uploads/' });
+
+router.post('/novo', upload.single('foto'), async (req, res) => {
   try {
     // Check if image is provided
-    if (!req.files || !req.files.foto) {
+    if (!req.file) {
       return res.status(400).json({ error: 'Imagem obrigatória' });
     }
 
-    const imageStream = req.files.foto.data;
+    const imageStream = req.file.path; // Use the path of the uploaded file
 
     imgur.setAPIKey(process.env.IMGUR_CLIENT_ID);
     imgur.setAPISecret(process.env.IMGUR_CLIENT_SECRET);
 
     // Upload image to Imgur
-    const uploadedImage = await imgur.uploadImage(imageStream, {});
+    const uploadedImage = await imgur.uploadFile(imageStream);
 
     const imageUrl = uploadedImage.data.link;
 
