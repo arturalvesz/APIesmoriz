@@ -126,9 +126,22 @@ async function criarBilhete(bilheteiraId, dataValidade, quantidade, dataCompra, 
     const bilheteiraIdInt = parseInt(bilheteiraId);
     const utilizadorIdInt = parseInt(utilizadorId);
 
-    const codigoqr = bilheteiraId + dataValidade + utilizadorId;
+    
     const query = "INSERT INTO bilhete (bilheteira_id, data_validade, data_compra, utilizador_id, codigo_qr) VALUES ($1, $2, $3, $4, $5) RETURNING id";
     const values = [bilheteiraIdInt, dataValidade, dataCompra, utilizadorIdInt, codigoqr];
+
+    // Obtém o ID do bilhete criado
+    const bilheteId = bilheteQuery.rows[0].id;
+
+    // Cria o código QR usando informações do bilhete
+    const codigoqr = `${bilheteId}${dataValidade}${utilizadorIdInt}`;
+
+    // Atualiza o bilhete com o código QR
+    await pool.query(
+      "UPDATE bilhete SET codigo_qr = $1 WHERE id = $2",
+      [codigoqr, bilheteId]
+    );
+
     for (let i = 0; i < quantidade; i++) {
       await pool.query(query, values);
     }
