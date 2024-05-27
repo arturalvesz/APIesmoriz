@@ -2,38 +2,60 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../dbConfig');
 const imgur = require('imgur');
-const multer = require('multer');
 
-// Multer configuration for handling file uploads
-const upload = multer({ dest: 'uploads/' });
+const cloudinary = require('cloudinary').v2;
 
-router.post('/novo', upload.single('foto'), async (req, res) => {
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+const upload = multer({
+  limits: { fileSize: 5000000 }, // Set a limit for image size (5MB in this example)
+  fileFilter: (req, file, cb) => {
+    const allowedExtensions = ['.png', '.jpg', '.jpeg'];
+    const extension = path.extname(file.originalname).toLowerCase();
+    if (allowedExtensions.includes(extension)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only PNG, JPG, and JPEG images are allowed'));
+    }
+  },
+});
+
+router.post('/upload', upload.single('image'), async (req, res) => {
   try {
-    // Check if image is provided
-    if (!req.file) {
-      return res.status(400).json({ error: 'Imagem obrigatória' });
+    // Access the uploaded image
+    const image = req.file;
+
+    if (!image) {
+      return res.status(400).json({ error: 'No image uploaded' });
     }
 
-    const imageStream = req.file.path; // Use the path of the uploaded file
+    // Upload the image to Cloudinary
+    const result = await cloudinary.uploader.upload(image.path);
 
-    imgur.setAPIKey(process.env.IMGUR_CLIENT_ID);
-    imgur.setAPISecret(process.env.IMGUR_CLIENT_SECRET);
+    // Access the uploaded image URL
+    const imageUrl = result.secure_url;
 
-    // Upload image to Imgur
-    const uploadedImage = await imgur.uploadFile(imageStream);
+    // Database insertion using a prepared statement (adjust based on your database system)
+    const insertQuery = 'INSERT INTO foto (path) VALUES ($1) RETURNING *';
+    const values = [imageUrl];
 
-    const imageUrl = uploadedImage.data.link;
+    const client = await pool.connect(); // Establish a connection to the database
 
-    // Database insertion with the uploaded image URL
-    const novaFoto = await pool.query(
-      'INSERT INTO foto (path) VALUES ($1) RETURNING *',
-      [imageUrl]
-    );
+    try {
+      const insertResult = await client.query(insertQuery, values);
+      const insertedFoto = insertResult.rows[0]; // Access the inserted row
 
-    res.json(novaFoto.rows[0]);
+      res.json({ message: 'Image uploaded successfully!', uploadedFoto: insertedFoto });
+    } finally {
+      await client.release(); // Release the database connection
+    }
   } catch (err) {
-    console.error('Erro ao criar foto:', err);
-    res.status(500).json({ error: 'Erro ao criar foto' });
+    console.error('Error uploading image or inserting into database:', err);
+    res.status(500).json({ error: 'Failed to upload image' });
   }
 });
 
