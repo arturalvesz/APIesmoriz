@@ -3,7 +3,7 @@ const router = express.Router();
 const pool = require('../dbConfig');
 const imgur = require('imgur');
 
-router.post('/novo', upload.single('image'), async (req, res) => {
+router.post('/novo', async (req, res) => {
   try {
     const { evento_id, noticia_id, patrocinador_id } = req.body;
 
