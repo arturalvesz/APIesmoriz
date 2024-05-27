@@ -126,12 +126,15 @@ async function criarBilhete(bilheteiraId, dataValidade, quantidade, dataCompra, 
     const bilheteiraIdInt = parseInt(bilheteiraId);
     const utilizadorIdInt = parseInt(utilizadorId);
 
-    
+    // Consulta para criar o bilhete e retornar o ID do bilhete criado
     const query = "INSERT INTO bilhete (bilheteira_id, data_validade, data_compra, utilizador_id) VALUES ($1, $2, $3, $4) RETURNING id";
     const values = [bilheteiraIdInt, dataValidade, dataCompra, utilizadorIdInt];
-
+    
+    // Executa a consulta para criar o bilhete e obter o ID
+    const bilheteQuery = await pool.query(query, values);
+    
     // Obtém o ID do bilhete criado
-    const bilheteId = query.rows[0].id;
+    const bilheteId = bilheteQuery.rows[0].id;
 
     // Cria o código QR usando informações do bilhete
     const codigoqr = `${bilheteId}${dataValidade}${utilizadorIdInt}`;
@@ -142,6 +145,7 @@ async function criarBilhete(bilheteiraId, dataValidade, quantidade, dataCompra, 
       [codigoqr, bilheteId]
     );
 
+    // Se necessário, criar múltiplos bilhetes
     for (let i = 0; i < quantidade; i++) {
       await pool.query(query, values);
     }
@@ -149,6 +153,7 @@ async function criarBilhete(bilheteiraId, dataValidade, quantidade, dataCompra, 
     throw error;
   }
 }
+
 
 async function handleSubscriptionCreated(subscription) {
   console.log("current_period_start:", subscription.current_period_start);
