@@ -80,6 +80,37 @@ router.delete("/delete/:id", async (req, res) => {
   }
 });
 
+router.get('/utilizador/:userid', async (req, res) => {
+  try {
+    const { userid } = req.params;
+    const resultado = await pool.query('SELECT * FROM atleta WHERE user_id = $1', [userid]);
+    if (resultado.rows.length === 0) {
+      return res.status(404).json({ error: 'Atleta não encontrado' });
+    }
+
+
+    const formatDate = (date) => {
+      if (!date) return null;
+      const [yyyy, mm, dd] = date.toISOString().split('T')[0].split('-');
+      return `${dd}-${mm}-${yyyy}`;
+    };
+
+    const atleta = resultado.rows[0];
+
+    if (atleta.data_expiracao_mensalidade) {
+      atleta.data_expiracao_mensalidade = formatDate(atleta.data_expiracao_mensalidade);
+    }
+    if (atleta.data_inicio_atleta) {
+      atleta.data_inicio_atleta = formatDate(atleta.data_inicio_atleta);
+    }
+
+    res.json({atleta: atleta});
+  } catch (err) {
+    console.error('Erro ao obter atleta pelo userID:', err);
+    res.status(500).json({ error: 'Erro ao obter atleta pelo userID' });
+  }
+});
+
 router.post('/adicionar-atleta', async (req, res) => {
   const { userId, num_atleta, data_nascimento } = req.body;
   try {

@@ -152,10 +152,10 @@ router.post('/adicionar-socio', async (req, res) => {
     } else {
       // Adicionar o usuário ao sócio existente
       await pool.query('UPDATE socio SET user_id = $1 WHERE num_socio = $2', [userIdInt, numSocioInt]);
-      res.status(200).json({ message: 'Usuário adicionado ao sócio com sucesso' });
+      res.status(200).json({ message: 'Utilizador adicionado ao sócio com sucesso' });
     }
   } catch (error) {
-    console.error('Erro ao adicionar usuário ao sócio:', error);
+    console.error('Erro ao adicionar utilizador ao sócio:', error);
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 });
