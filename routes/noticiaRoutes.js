@@ -1,3 +1,10 @@
+const express = require('express');
+const router = express.Router();
+const pool = require('../dbConfig');
+
+
+
+
 // Criar uma nova notícia
 router.post("/novo", async (req, res) => {
     try {
@@ -78,3 +85,5 @@ router.delete("/delete/:id", async (req, res) => {
     res.status(500).json({ error: "Erro ao excluir notícia" });
   }
 });
+
+module.exports = router;
