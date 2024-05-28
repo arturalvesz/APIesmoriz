@@ -29,7 +29,7 @@ router.get("/all", async (req, res) => {
   try {
     const todosEventos = await pool.query(`
       SELECT id, nome, descricao,localizacao, to_char(data_inicio, 'DD-MM-YYYY') as data_inicio,to_char(data_fim, 'DD-MM-YYYY') as data_fim
-      FROM noticia
+      FROM evento
     `);
     res.json({ eventos: todosEventos.rows });
   } catch (err) {
