@@ -47,7 +47,7 @@ router.post( "/uploadImage", upload.single("image-file"), async function (req, r
       }
 
       const query = `
-      INSERT INTO your_table_name (${column}, path)
+      INSERT INTO foto (${column}, path)
       VALUES ($1, $2)
       RETURNING *;
     `;

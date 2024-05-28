@@ -10,7 +10,7 @@ router.post('/novo', async (req, res) => {
       'INSERT INTO Patrocinador (nome, descricao) VALUES ($1, $2) RETURNING *',
       [nome, descricao]
     );
-    res.json(novoPatrocinador.rows[0]);
+    res.json( {patrocinador: novoPatrocinador.rows[0]});
   } catch (err) {
     console.error('Erro ao criar patrocinador:', err);
     res.status(500).json({ error: 'Erro ao criar patrocinador' });
