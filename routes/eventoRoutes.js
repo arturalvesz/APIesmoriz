@@ -5,7 +5,7 @@ const pool = require('../dbConfig');
 // Criar um novo evento
 router.post('/novo', async (req, res) => {
   try {
-    const { nome, descricao, localizacao, data_inicio, data_fim } = req.body;
+    const { nome, descricao, localizacao, data_inicio, data_fim,hora } = req.body;
 
     const [diaInicio, mesInicio, anoInicio] = data_inicio.split('-');
     const dataInicio = `${anoInicio}-${mesInicio}-${diaInicio}`;
@@ -14,8 +14,8 @@ router.post('/novo', async (req, res) => {
     const dataFim = `${anoFim}-${mesFim}-${diaFim}`;
 
     const novoEvento = await pool.query(
-      'INSERT INTO Evento (nome, descricao, localizacao, data_inicio, data_fim) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [nome, descricao, localizacao, dataInicio, dataFim]
+      'INSERT INTO Evento (nome, descricao, localizacao, data_inicio, data_fim, hora) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+      [nome, descricao, localizacao, dataInicio, dataFim, hora]
     );
     res.json({evento: novoEvento.rows[0]});
   } catch (err) {
@@ -28,7 +28,7 @@ router.post('/novo', async (req, res) => {
 router.get("/all", async (req, res) => {
   try {
     const todosEventos = await pool.query(`
-      SELECT id, nome, descricao,localizacao, to_char(data_inicio, 'DD-MM-YYYY') as data_inicio,to_char(data_fim, 'DD-MM-YYYY') as data_fim
+      SELECT id, nome, descricao,localizacao, to_char(data_inicio, 'DD-MM-YYYY') as data_inicio,to_char(data_fim, 'DD-MM-YYYY') as data_fim,  to_char(hora, 'HH24:MI') AS hora
       FROM evento
     `);
     res.json({ eventos: todosEventos.rows });
@@ -57,10 +57,10 @@ router.get('/:id', async (req, res) => {
 router.put('/update/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { nome, descricao, localizacao, data } = req.body;
+    const { nome, descricao, localizacao, data_inicio, data_fim, hora } = req.body;
     const eventoAtualizado = await pool.query(
-      'UPDATE Evento SET nome = $1, descricao = $2, localizacao = $3, data = $4 WHERE id = $5 RETURNING *',
-      [nome, descricao, localizacao, data, id]
+      'UPDATE Evento SET nome = $1, descricao = $2, localizacao = $3, data_inicio = $4, data_fim = $5, hora = $6 WHERE id = $5 RETURNING *',
+      [nome, descricao, localizacao, data_inicio, data_fim, hora, id]
     );
     if (eventoAtualizado.rows.length === 0) {
       return res.status(404).json({ error: 'Evento não encontrado' });
