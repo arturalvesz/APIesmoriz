@@ -136,7 +136,7 @@ async function handleAtletaSubscriptionCreated(subscription) {
     const checkUserResult = await pool.query(checkUserQuery, [userId]);
 
     if (checkUserResult.rows.length > 0) {
-      const updateUserQuery = "UPDATE atleta SET estado = $1, data_inicio_socio = $2, data_expiracao_mensalidade = $3 WHERE user_id = $4";
+      const updateUserQuery = "UPDATE atleta SET estado = $1, data_inicio_atleta = $2, data_expiracao_mensalidade = $3 WHERE user_id = $4";
       await pool.query(updateUserQuery, [status, dataInicio, dataExpiracao, userId]);
     }
 
