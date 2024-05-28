@@ -8,7 +8,7 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 require("dotenv").config();
 
 router.post("/create-checkout-session", async (req, res) => {
-  const { email, utilizadorId } = req.body;
+  const { email, utilizadorId, type} = req.body;
 
   const priceId = "price_1PLSGWKBAZDUE29JGzJEm3Xw" ;
   try {
@@ -57,7 +57,7 @@ router.post("/create-checkout-session", async (req, res) => {
       subscription_data: {
         metadata: {
           utilizadorId: utilizadorId,
-          tipoSubscricao: atleta,
+          tipoSubscricao: type,
         },
       },
     });
