@@ -28,7 +28,6 @@ router.post("/create-checkout-session", async (req, res) => {
     const subscriptions = await stripe.subscriptions.list({
       customer: customer.id,
       status: "active",
-      price: priceId, 
       expand: ["data.default_payment_method"],
     });
 
