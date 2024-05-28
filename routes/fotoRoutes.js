@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../dbConfig');
 const multer = require('multer');
-
+const path = require("path");
 const cloudinary = require('cloudinary').v2;
 
 cloudinary.config({
@@ -11,26 +11,29 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-
-var storage = multer.diskStorage({
-
-  destination: function(req, file, cb){
-    cb(null, './uploads')
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, '/uploads'));
   },
-  filename: function(req, file, cb){
-    cb(null, file.originalname)
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
+  },
+});
+
+const upload = multer({ storage: storage });
+
+router.post('/patrocinadorImage', upload.single('profile-file'), async function (req, res, next) {
+  try {
+    // Upload the file to Cloudinary
+    const result = await cloudinary.uploader.upload(req.file.path);
+
+    // Respond with the Cloudinary URL
+    return res.send({ imageUrl: result.secure_url });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send({ message: 'Upload failed' });
   }
-})
-var upload = multer({storage: storage})
-
-
-router.post('/patrocinadorImage', upload.single('profile-file'), function(req, res, next) {
-
-  console.log(JSON.stringify(req.file))
-  var response = req.file.path
-  return res.send(response)
-})
-
+});
 
 
 
