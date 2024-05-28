@@ -23,15 +23,19 @@ router.post("/novo", async (req, res) => {
 
 // Obter todas as notícias
 router.get("/all", async (req, res) => {
-  try {
-    const todasNoticias = await pool.query("SELECT * FROM noticia");
-    res.json({ noticia: todasNoticias.rows });
-  } catch (err) {
-    console.error("Erro ao obter notícias:", err);
-    res.status(500).json({ error: "Erro ao obter notícias" });
-  }
-});
+    try {
+      const todasNoticias = await pool.query(`
+        SELECT id, titulo, descricao, to_char(data, 'DD-MM-YYYY') as data
+        FROM noticia
+      `);
+      res.json({ noticia: todasNoticias.rows });
+    } catch (err) {
+      console.error("Erro ao obter notícias:", err);
+      res.status(500).json({ error: "Erro ao obter notícias" });
+    }
+  });
 
+  
 // Obter uma única notícia pelo ID
 router.get("/:id", async (req, res) => {
   try {

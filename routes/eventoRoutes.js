@@ -25,13 +25,16 @@ router.post('/novo', async (req, res) => {
 });
 
 // Obter todos os eventos
-router.get('/all', async (req, res) => {
+router.get("/all", async (req, res) => {
   try {
-    const todosEventos = await pool.query('SELECT * FROM Evento');
-    res.json({eventos : todosEventos.rows });
+    const todosEventos = await pool.query(`
+      SELECT id, nome, descricao,localizacao, to_char(data_inicio, 'DD-MM-YYYY') as data_inicio,to_char(data_fim, 'DD-MM-YYYY') as data_fim
+      FROM noticia
+    `);
+    res.json({ eventos: todosEventos.rows });
   } catch (err) {
-    console.error('Erro ao obter eventos:', err);
-    res.status(500).json({ error: 'Erro ao obter eventos' });
+    console.error("Erro ao obter eventos:", err);
+    res.status(500).json({ error: "Erro ao obter eventos" });
   }
 });
 
