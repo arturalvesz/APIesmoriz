@@ -33,21 +33,21 @@ router.post("/uploadImage", upload.single("image-file"), async function (req, re
 
     let column, value;
 
-    if (patrocinador_id !== null) {
+    if (patrocinador_id !== undefined && patrocinador_id !== "null") {
       column = "patrocinador_id";
-      value = patrocinador_id;
-    } else if (evento_id !== null) {
+      value = parseInt(patrocinador_id);
+    } else if (evento_id !== undefined && evento_id !== "null") {
       column = "evento_id";
-      value = evento_id;
-    } else if (socio_id !== null) {
+      value = parseInt(evento_id);
+    } else if (socio_id !== undefined && socio_id !== "null") {
       column = "socio_id";
-      value = socio_id;
-    } else if (atleta_id !== null) {
+      value = parseInt(socio_id);
+    } else if (atleta_id !== undefined && atleta_id !== "null") {
       column = "atleta_id";
-      value = atleta_id;
-    } else if (noticia_id !== null) {
+      value = parseInt(atleta_id);
+    } else if (noticia_id !== undefined && noticia_id !== "null") {
       column = "noticia_id";
-      value = noticia_id;
+      value = parseInt(noticia_id);
     } else {
       return res.status(400).json({ message: "Invalid request. Please provide valid parameters." });
     }
