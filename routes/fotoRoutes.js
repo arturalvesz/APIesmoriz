@@ -22,49 +22,53 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-router.post( "/uploadImage", upload.single("image-file"), async function (req, res, next) {
-    try {
-      const result = await cloudinary.uploader.upload(req.file.path);
+router.post("/uploadImage", upload.single("image-file"), async function (req, res, next) {
+  try {
+    const result = await cloudinary.uploader.upload(req.file.path);
 
-      const { patrocinador_id, evento_id, socio_id, noticia_id, atleta_id } = req.body;
-      const filePath = result.secure_url; 
+    const { patrocinador_id, evento_id, socio_id, noticia_id, atleta_id } = req.body;
+    const filePath = result.secure_url; 
 
-      const column = patrocinador_id ? "patrocinador_id"
-      : evento_id ? "evento_id"
-      : socio_id ? "socio_id"
-      : atleta_id ? "atleta_id"
-      : noticia_id ? "noticia_id"
-      : null;
+    console.log("socio id: ", socio_id);
 
-      const value = patrocinador_id || evento_id || socio_id || atleta_id || noticia_id;
+    let column, value;
 
-      if (!column || !value) {
-        return res
-          .status(400)
-          .json({
-            message: "Invalid request. Please provide valid parameters.",
-          });
-      }
+    if (patrocinador_id !== null) {
+      column = "patrocinador_id";
+      value = patrocinador_id;
+    } else if (evento_id !== null) {
+      column = "evento_id";
+      value = evento_id;
+    } else if (socio_id !== null) {
+      column = "socio_id";
+      value = socio_id;
+    } else if (atleta_id !== null) {
+      column = "atleta_id";
+      value = atleta_id;
+    } else if (noticia_id !== null) {
+      column = "noticia_id";
+      value = noticia_id;
+    } else {
+      return res.status(400).json({ message: "Invalid request. Please provide valid parameters." });
+    }
 
-      const query = `
+    const query = `
       INSERT INTO foto (${column}, path)
       VALUES ($1, $2)
       RETURNING *;
     `;
 
-      const dbResult = await pool.query(query, [value, filePath]);
+    const dbResult = await pool.query(query, [value, filePath]);
 
-      return res.json({
-        imageUrl: filePath,
-        databaseRecord: dbResult.rows[0],
-      });
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ message: "Upload failed" });
-    }
+    return res.json({
+      imageUrl: filePath,
+      databaseRecord: dbResult.rows[0],
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Upload failed" });
   }
-);
-
+});
 // Obter todas as fotos
 router.get("/all", async (req, res) => {
   try {
