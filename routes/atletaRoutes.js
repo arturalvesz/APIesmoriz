@@ -146,7 +146,7 @@ router.get('/verificar-atleta/:userId', async (req, res) => {
     const result = await pool.query('SELECT id FROM atleta WHERE user_id = $1', [userId]);
     if (result.rows.length > 0) {
       const atletaId = result.rows[0].id;
-      res.status(200).json({ isAtleta: true, atletaIdId: atletaId });
+      res.status(200).json({ isAtleta: true, atletaId: atletaId });
     } else {
       res.status(200).json({ isAtleta: false, atletaId: null });
     }
