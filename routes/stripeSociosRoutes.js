@@ -8,10 +8,16 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 require("dotenv").config();
 
 router.post("/create-checkout-session", async (req, res) => {
-  const { email, utilizadorId } = req.body;
+  const { email, utilizadorId, type} = req.body;
 
-  const priceId = "price_1PGSDrKBAZDUE29JasXKsCos" ;
-  try {
+  let priceId;
+  if(type == 'atleta'){
+    priceId = "price_1PLSGWKBAZDUE29JGzJEm3Xw" 
+  }
+  else{
+    priceId = "price_1PGSDrKBAZDUE29JasXKsCos" ;
+  }
+    try {
     // Encontrar ou criar um cliente no Stripe com base no email
     let customer = await stripe.customers.list({ email: email, limit: 1 });
     if (customer.data.length === 0) {
@@ -57,6 +63,7 @@ router.post("/create-checkout-session", async (req, res) => {
       subscription_data: {
         metadata: {
           utilizadorId: utilizadorId,
+          tipoSubscricao: type,
         },
       },
     });
