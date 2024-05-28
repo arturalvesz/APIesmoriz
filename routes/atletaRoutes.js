@@ -145,10 +145,10 @@ router.get('/verificar-atleta/:userId', async (req, res) => {
   try {
     const result = await pool.query('SELECT id FROM atleta WHERE user_id = $1', [userId]);
     if (result.rows.length > 0) {
-      const socioId = result.rows[0].id;
-      res.status(200).json({ isAtleta: true});
+      const atletaId = result.rows[0].id;
+      res.status(200).json({ isAtleta: true, atletaIdId: atletaId });
     } else {
-      res.status(200).json({ isAtleta: false});
+      res.status(200).json({ isAtleta: false, atletaId: null });
     }
   } catch (error) {
     console.error('Erro ao verificar atleta:', error);
