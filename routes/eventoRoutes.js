@@ -5,12 +5,19 @@ const pool = require('../dbConfig');
 // Criar um novo evento
 router.post('/novo', async (req, res) => {
   try {
-    const { nome, descricao, localizacao, data } = req.body;
+    const { nome, descricao, localizacao, data_inicio, data_fim } = req.body;
+
+    const [diaInicio, mesInicio, anoInicio] = data_inicio.split('-');
+    const dataInicio = `${anoInicio}-${mesInicio}-${diaInicio}`;
+
+    const [diaFim, mesFim, anoFim] = data_fim.split('-');
+    const dataFim = `${anoFim}-${mesFim}-${diaFim}`;
+
     const novoEvento = await pool.query(
-      'INSERT INTO Evento (nome, descricao, localizacao, data) VALUES ($1, $2, $3, $4) RETURNING *',
-      [nome, descricao, localizacao, data]
+      'INSERT INTO Evento (nome, descricao, localizacao, data_inicio, data_fim) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [nome, descricao, localizacao, dataInicio, dataFim]
     );
-    res.json(novoEvento.rows[0]);
+    res.json({evento: novoEvento.rows[0]});
   } catch (err) {
     console.error('Erro ao criar evento:', err);
     res.status(500).json({ error: 'Erro ao criar evento' });

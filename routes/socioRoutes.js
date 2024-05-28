@@ -114,15 +114,15 @@ router.delete('/delete/:id', async (req, res) => {
   }
 });
 
-// Rota para verificar se o usuário já tem um sócio associado
 router.get('/verificar-socio/:userId', async (req, res) => {
   const userId = req.params.userId;
   try {
-    const result = await pool.query('SELECT * FROM socio WHERE user_id = $1', [userId]);
+    const result = await pool.query('SELECT id FROM socio WHERE user_id = $1', [userId]);
     if (result.rows.length > 0) {
-      res.status(200).json({ isSocio: true });
+      const socioId = result.rows[0].id;
+      res.status(200).json({ isSocio: true, socioId: socioId });
     } else {
-      res.status(200).json({ isSocio: false });
+      res.status(200).json({ isSocio: false, socioId: null });
     }
   } catch (error) {
     console.error('Erro ao verificar sócio:', error);

@@ -26,13 +26,14 @@ router.post( "/uploadImage", upload.single("image-file"), async function (req, r
     try {
       const result = await cloudinary.uploader.upload(req.file.path);
 
-      const { patrocinador_id, evento_id, utilizador_id, noticia_id } =
+      const { patrocinador_id, evento_id, socio_id, noticia_id, atleta_id } =
         req.body;
       const filePath = result.secure_url; 
 
       const column = patrocinador_id ? "patrocinador_id"
       : evento_id ? "evento_id"
-      : utilizador_id ? "utilizador_id"
+      : socio_id ? "socio_id"
+      : atleta_id ? "atleta_id"
       : noticia_id ? "noticia_id"
       : null;
 
