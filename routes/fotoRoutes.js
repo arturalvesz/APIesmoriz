@@ -162,7 +162,7 @@ router.get("/evento/:id", async (req, res) => {
       return res.status(404).json({ error: "Foto não encontrada" });
     }
     const filename = foto.rows[0].path;
-    res.json({ evetoImagePath: filename });
+    res.json({ eventoImagePath: filename });
   } catch (err) {
     console.error("Erro ao obter foto pelo ID:", err);
     res.status(500).json({ error: "Erro ao obter foto pelo ID" });
