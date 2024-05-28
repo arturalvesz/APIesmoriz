@@ -5,7 +5,7 @@ const pool = require('../dbConfig');
 // Criar um novo jogo
 router.post('/novo', async (req, res) => {
   try {
-    const { data, hora, equipa_casa, escalao_id, equipa_fora, localizacao } = req.body;    
+    const { data, hora, equipa_casa, escalao_id, equipa_fora, localizacao } = req.body;
     const [dia, mes, ano] = data.split("-");
     const dataFormatada = `${ano}-${mes}-${dia}`;
 

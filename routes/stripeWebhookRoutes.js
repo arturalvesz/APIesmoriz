@@ -25,7 +25,6 @@ router.post("/webhook", async (req, res) => {
       if (session.payment_intent) {
         const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent);
 
-        // Process payment details (e.g., quantity calculation, ticket creation)
         const lineItems = session.line_items.data;
         let quantidadeTotal = 0;
         lineItems.forEach(item => {
@@ -40,7 +39,13 @@ router.post("/webhook", async (req, res) => {
       if (session.subscription) {
         // Subscription created from checkout session
         const subscription = session.subscription;
+        const tipoSubscricao = subscription.metadata.tipoSubscricao;
+        if(tipoSubscricao == 'atleta'){
+          await handleAtletaSubscriptionCreated(subscription);
+
+        }else{
         await handleSubscriptionCreated(subscription);
+        }
       }
 
       res.status(200).send();
@@ -117,6 +122,29 @@ async function handleSubscriptionCreated(subscription) {
   }
 }
 
+async function handleAtletaSubscriptionCreated(subscription) {
+  console.log("current_period_start:", subscription.current_period_start);
+  console.log("current_period_end:", subscription.current_period_end);
+
+  const status = subscription.status;
+  const dataInicio = new Date(subscription.current_period_start * 1000).toLocaleDateString('en-CA');
+  const dataExpiracao = new Date(subscription.current_period_end * 1000).toLocaleDateString('en-CA');
+  const userId = parseInt(subscription.metadata.utilizadorId);
+
+  try {
+    const checkUserQuery = "SELECT 1 FROM atleta WHERE user_id = $1";
+    const checkUserResult = await pool.query(checkUserQuery, [userId]);
+
+    if (checkUserResult.rows.length > 0) {
+      const updateUserQuery = "UPDATE atleta SET estado = $1, data_inicio_socio = $2, data_expiracao_mensalidade = $3 WHERE user_id = $4";
+      await pool.query(updateUserQuery, [status, dataInicio, dataExpiracao, userId]);
+    }
+
+    console.log("Operação concluída com sucesso.");
+  } catch (err) {
+    console.error("Erro ao processar a assinatura:", err);
+  }
+}
 
 async function handleSubscriptionUpdate(subscription) {
   

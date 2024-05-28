@@ -80,4 +80,33 @@ router.delete("/delete/:id", async (req, res) => {
   }
 });
 
+router.post('/adicionar-socio', async (req, res) => {
+  const { userId, num_atleta, data_nascimento } = req.body;
+  try {
+
+    const numAtletaInt = parseInt(num_atleta);
+    const userIdInt = parseInt(userId);
+
+    // Convertendo a data de nascimento do formato "dia-mês-ano" para "ano-mês-dia"
+    const [dia, mes, ano] = data_nascimento.split('-');
+    const dataNascimentoDB = `${ano}-${mes}-${dia}`;
+    // Verificar se o número de sócio já existe
+    const atletaExistente = await pool.query('SELECT * FROM socio WHERE num_atleta = $1', [numAtletaInt]);
+    if (atletaExistente.rows.length === 0) {
+      res.status(404).json({ error: 'Número de atleta não encontrado' });
+    } else if (atletaExistente.rows[0].user_id !== null) {
+      res.status(400).json({ error: 'Número de atleta já está associado a outro usuário' });
+    } else if (atletaExistente.rows[0].data_nascimento.toISOString().split('T')[0] !== new Date(dataNascimentoDB).toISOString().split('T')[0]) {
+      res.status(400).json({ error: 'Data de nascimento não corresponde ao atleta encontrado' });
+    } else {
+      // Adicionar o usuário ao sócio existente
+      await pool.query('UPDATE atleta SET user_id = $1 WHERE num_atleta = $2', [userIdInt, numAtletaInt]);
+      res.status(200).json({ message: 'Usuário adicionado ao atleta com sucesso' });
+    }
+  } catch (error) {
+    console.error('Erro ao adicionar usuário ao sócio:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
 module.exports = router;
