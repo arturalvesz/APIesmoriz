@@ -110,7 +110,7 @@ router.get("/patrocinador/:id", async (req, res) => {
     res.status(500).json({ error: "Erro ao obter foto pelo ID" });
   }
 });
-router.get("/patrocinador/:id", async (req, res) => {
+router.get("/noticia/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const foto = await pool.query(
