@@ -140,4 +140,21 @@ router.post('/adicionar-atleta', async (req, res) => {
   }
 });
 
+router.get('/verificar-atleta/:userId', async (req, res) => {
+  const userId = req.params.userId;
+  try {
+    const result = await pool.query('SELECT id FROM atleta WHERE user_id = $1', [userId]);
+    if (result.rows.length > 0) {
+      const socioId = result.rows[0].id;
+      res.status(200).json({ isAtleta: true});
+    } else {
+      res.status(200).json({ isAtleta: false});
+    }
+  } catch (error) {
+    console.error('Erro ao verificar atleta:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+
 module.exports = router;
