@@ -58,6 +58,9 @@ router.post("/uploadImage", upload.single("image-file"), async function (req, re
       RETURNING *;
     `;
 
+    console.log("column: ", column);
+    console.log("value: ", value);
+
     const dbResult = await pool.query(query, [value, filePath]);
 
     return res.json({
@@ -69,6 +72,7 @@ router.post("/uploadImage", upload.single("image-file"), async function (req, re
     return res.status(500).json({ message: "Upload failed" });
   }
 });
+
 // Obter todas as fotos
 router.get("/all", async (req, res) => {
   try {
