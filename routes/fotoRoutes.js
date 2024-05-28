@@ -27,9 +27,7 @@ router.post("/uploadImage", upload.single("image-file"), async function (req, re
     const result = await cloudinary.uploader.upload(req.file.path);
 
     const { patrocinador_id, evento_id, socio_id, noticia_id, atleta_id } = req.body;
-    const filePath = result.secure_url; 
-
-    console.log("socio id: ", socio_id);
+    const filePath = result.secure_url;
 
     let column, value;
 
@@ -52,21 +50,40 @@ router.post("/uploadImage", upload.single("image-file"), async function (req, re
       return res.status(400).json({ message: "Invalid request. Please provide valid parameters." });
     }
 
-    const query = `
-      INSERT INTO foto (${column}, path)
-      VALUES ($1, $2)
-      RETURNING *;
+    // Verifique se já existe um registro com o mesmo ID
+    const checkQuery = `
+      SELECT * FROM foto WHERE ${column} = $1;
     `;
+    const checkResult = await pool.query(checkQuery, [value]);
 
-    console.log("column: ", column);
-    console.log("value: ", value);
-
-    const dbResult = await pool.query(query, [value, filePath]);
-
-    return res.json({
-      imageUrl: filePath,
-      databaseRecord: dbResult.rows[0],
-    });
+    if (checkResult.rows.length > 0) {
+      // Se existir, atualize o path
+      const updateQuery = `
+        UPDATE foto
+        SET path = $1
+        WHERE ${column} = $2
+        RETURNING *;
+      `;
+      const updateResult = await pool.query(updateQuery, [filePath, value]);
+      return res.json({
+        message: "Record updated successfully",
+        imageUrl: filePath,
+        databaseRecord: updateResult.rows[0],
+      });
+    } else {
+      // Se não existir, insira um novo registro
+      const insertQuery = `
+        INSERT INTO foto (${column}, path)
+        VALUES ($1, $2)
+        RETURNING *;
+      `;
+      const insertResult = await pool.query(insertQuery, [value, filePath]);
+      return res.json({
+        message: "Record inserted successfully",
+        imageUrl: filePath,
+        databaseRecord: insertResult.rows[0],
+      });
+    }
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Upload failed" });
