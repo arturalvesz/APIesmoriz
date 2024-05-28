@@ -92,7 +92,7 @@ router.get("/utilizador/:id", async (req, res) => {
       JOIN bilheteira bi ON b.bilheteira_id = bi.id
       JOIN jogo j ON bi.jogo_id = j.id
       WHERE b.utilizador_id = $1
-        AND b.data_compra >= NOW() - INTERVAL '30 minutes'
+        AND b.data_compra >= NOW() - INTERVAL '2 minutes'
     `, [id]);
 
 
