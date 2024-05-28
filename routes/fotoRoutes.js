@@ -12,27 +12,28 @@ cloudinary.config({
 });
 
 
+var storage = multer.diskStorage({
 
-router.post('/upload', async (req, res) => {
-  try {
-    const image = "C:\\Users\\Utilizador\\Desktop\\APIesmoriz\\public\\uploads\\patrocinador\\esmorizgc_01.jpg";
-
-    if (!image) {
-      return res.status(400).json({ error: 'No image uploaded' });
-    }
-
-    const result = await cloudinary.uploader.upload(image);
-
-    const imageUrl = result.secure_url;
-
-    const insertQuery = 'INSERT INTO foto (path) VALUES ($1) RETURNING *';
-    const values = [imageUrl];
-    
-  } catch (err) {
-    console.error('Error uploading image or inserting into database:', err);
-    res.status(500).json({ error: 'Failed to upload image' });
+  destination: function(req, file, cb){
+    cb(null, './uploads')
+  },
+  filename: function(req, file, cb){
+    cb(null, file.originalname)
   }
-});
+})
+var upload = multer({storage: storage})
+
+
+router.post('/patrocinadorImage', upload.single('profile-file'), function(req, res, next) {
+
+  console.log(JSON.stringify(req.file))
+  var response = req.file.path
+  return res.send(response)
+})
+
+
+
+
 // Obter todas as fotos
 router.get('/all', async (req, res) => {
   try {
