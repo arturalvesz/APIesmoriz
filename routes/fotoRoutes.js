@@ -104,7 +104,77 @@ router.get("/patrocinador/:id", async (req, res) => {
       return res.status(404).json({ error: "Foto não encontrada" });
     }
     const filename = foto.rows[0].path;
-    res.json({ patrocinadorPath: filename });
+    res.json({ patrocinadorImagePath: filename });
+  } catch (err) {
+    console.error("Erro ao obter foto pelo ID:", err);
+    res.status(500).json({ error: "Erro ao obter foto pelo ID" });
+  }
+});
+router.get("/patrocinador/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const foto = await pool.query(
+      "SELECT path FROM foto WHERE noticia_id = $1",
+      [id]
+    );
+    if (foto.rows.length === 0) {
+      return res.status(404).json({ error: "Foto não encontrada" });
+    }
+    const filename = foto.rows[0].path;
+    res.json({ noticiaImagePath: filename });
+  } catch (err) {
+    console.error("Erro ao obter foto pelo ID:", err);
+    res.status(500).json({ error: "Erro ao obter foto pelo ID" });
+  }
+});
+router.get("/evento/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const foto = await pool.query(
+      "SELECT path FROM foto WHERE evento_id = $1",
+      [id]
+    );
+    if (foto.rows.length === 0) {
+      return res.status(404).json({ error: "Foto não encontrada" });
+    }
+    const filename = foto.rows[0].path;
+    res.json({ evetoImagePath: filename });
+  } catch (err) {
+    console.error("Erro ao obter foto pelo ID:", err);
+    res.status(500).json({ error: "Erro ao obter foto pelo ID" });
+  }
+});
+
+router.get("/socio/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const foto = await pool.query(
+      "SELECT path FROM foto WHERE socio_id = $1",
+      [id]
+    );
+    if (foto.rows.length === 0) {
+      return res.status(404).json({ error: "Foto não encontrada" });
+    }
+    const filename = foto.rows[0].path;
+    res.json({ socioFotoPath: filename });
+  } catch (err) {
+    console.error("Erro ao obter foto pelo ID:", err);
+    res.status(500).json({ error: "Erro ao obter foto pelo ID" });
+  }
+});
+
+router.get("/atleta/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const foto = await pool.query(
+      "SELECT path FROM foto WHERE atleta_id = $1",
+      [id]
+    );
+    if (foto.rows.length === 0) {
+      return res.status(404).json({ error: "Foto não encontrada" });
+    }
+    const filename = foto.rows[0].path;
+    res.json({ atletaFotoPath: filename });
   } catch (err) {
     console.error("Erro ao obter foto pelo ID:", err);
     res.status(500).json({ error: "Erro ao obter foto pelo ID" });
