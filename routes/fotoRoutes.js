@@ -11,25 +11,35 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+var uploadPath = path.join(__dirname, '..', 'public', 'uploads');
+
+// Ensure the `uploads` directory exists
+if (!fs.existsSync(uploadPath)) {
+    fs.mkdirSync(uploadPath, { recursive: true });
+    console.log('Uploads directory created:', uploadPath);
+}
 
 var storage = multer.diskStorage({
-
-  destination: function(req, file, cb){
-    cb(null, './public/uploads')
+  destination: function(req, file, cb) {
+    cb(null, uploadPath);
   },
-  filename: function(req, file, cb){
-    cb(null, file.originalname)
+  filename: function(req, file, cb) {
+    cb(null, file.originalname);
   }
-})
-var upload = multer({storage: storage})
+});
 
+var upload = multer({ storage: storage });
 
 router.post('/patrocinadorImage', upload.single('profile-file'), function(req, res, next) {
+  if (!req.file) {
+    console.error('No file uploaded');
+    return res.status(400).send('No file uploaded.');
+  }
 
-  console.log(JSON.stringify(req.file))
-  var response = req.file.path
-  return res.send(response)
-})
+  console.log('File uploaded:', JSON.stringify(req.file));
+  var response = path.join('uploads', req.file.originalname); // Return relative path
+  return res.send(response);
+});
 
 
 
