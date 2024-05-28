@@ -11,7 +11,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-var uploadPath = path.join(__dirname, '..', 'public', 'uploads');
+var uploadPath = path.join(__dirname, '..','uploads');
 
 // Ensure the `uploads` directory exists
 if (!fs.existsSync(uploadPath)) {
